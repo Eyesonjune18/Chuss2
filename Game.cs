@@ -25,7 +25,7 @@ public class Game
     // Number of fullmoves (total moves in the game)
     private bool _isWhiteTurn;
     // Whether the current turn is for white (true) or black (false)
-    private string _fen;
+    private string? _fen;
     // A string that represents the Board state
     private List<Piece> _capturedWhitePieces;
     // The white Pieces that have been captured by black
@@ -37,18 +37,17 @@ public class Game
     {
         
         _board = new Piece[8, 8];
-        _enPassantTile = null;
         _whiteCanCastleKingside = true;
         _whiteCanCastleQueenside = true;
         _blackCanCastleKingside = true;
         _blackCanCastleQueenside = true;
+        _enPassantTile = null;
         _halfMoves = 0;
         _fullMoves = 0;
         _isWhiteTurn = true;
-        
-        ResetGame();
-        _fen = GenerateCurrentFen();
 
+        ResetGame();
+        
         Console.WriteLine("FEN: " + _fen);
 
         _capturedWhitePieces = new List<Piece>();
@@ -56,63 +55,63 @@ public class Game
 
     }
 
-    // private void ResetGame()
-    // {
-    //
-    //     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
-    //
-    // }
-
     private void ResetGame()
-    // Resets the chess board to the default chess starting layout
-    // Assumes that _board has been initialized
-    // TODO: Make a different function that does this from a Fen string (probably delete this one as well)
     {
     
-        _board[0, 1] = new Pawn(0, 1, true);
-        _board[1, 1] = new Pawn(1, 1, true);
-        _board[2, 1] = new Pawn(2, 1, true);
-        _board[3, 1] = new Pawn(3, 1, true);
-        _board[4, 1] = new Pawn(4, 1, true);
-        _board[5, 1] = new Pawn(5, 1, true);
-        _board[6, 1] = new Pawn(6, 1, true);
-        _board[7, 1] = new Pawn(7, 1, true);
-        // White Pawns
-        
-        _board[0, 0] = new Rook(0, 0, true);
-        _board[1, 0] = new Knight(1, 0, true);
-        _board[2, 0] = new Bishop(2, 0, true);
-        _board[3, 0] = new Queen(3, 0, true);
-        _board[4, 0] = new King(4, 0, true);
-        _board[5, 0] = new Bishop(5, 0, true);
-        _board[6, 0] = new Knight(6, 0, true);
-        _board[7, 0] = new Rook(7, 0, true);
-        // White Rooks, Knights, Bishops, Queen, and King
-        
-        _board[0, 6] = new Pawn(0, 6, false);
-        _board[1, 6] = new Pawn(1, 6, false);
-        _board[2, 6] = new Pawn(2, 6, false);
-        _board[3, 6] = new Pawn(3, 6, false);
-        _board[4, 6] = new Pawn(4, 6, false);
-        _board[5, 6] = new Pawn(5, 6, false);
-        _board[6, 6] = new Pawn(6, 6, false);
-        _board[7, 6] = new Pawn(7, 6, false);
-        // Black Pawns
-        
-        _board[0, 7] = new Rook(0, 7, false);
-        _board[1, 7] = new Knight(1, 7, false);
-        _board[2, 7] = new Bishop(2, 7, false);
-        _board[3, 7] = new Queen(3, 7, false);
-        _board[4, 7] = new King(4, 7, false);
-        _board[5, 7] = new Bishop(5, 7, false);
-        _board[6, 7] = new Knight(6, 7, false);
-        _board[7, 7] = new Rook(7, 7, false);
-        // Black Rooks, Knights, Bishops, Queen, and King
+        SetGamestateWithFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0");
     
     }
 
+    // private void ResetGame()
+    // // Resets the chess board to the default chess starting layout
+    // // Assumes that _board has been initialized
+    // // TODO: Make a different function that does this from a FEN string (probably delete this one as well)
+    // {
+    //
+    //     _board[0, 1] = new Pawn(0, 1, true);
+    //     _board[1, 1] = new Pawn(1, 1, true);
+    //     _board[2, 1] = new Pawn(2, 1, true);
+    //     _board[3, 1] = new Pawn(3, 1, true);
+    //     _board[4, 1] = new Pawn(4, 1, true);
+    //     _board[5, 1] = new Pawn(5, 1, true);
+    //     _board[6, 1] = new Pawn(6, 1, true);
+    //     _board[7, 1] = new Pawn(7, 1, true);
+    //     // White Pawns
+    //     
+    //     _board[0, 0] = new Rook(0, 0, true);
+    //     _board[1, 0] = new Knight(1, 0, true);
+    //     _board[2, 0] = new Bishop(2, 0, true);
+    //     _board[3, 0] = new Queen(3, 0, true);
+    //     _board[4, 0] = new King(4, 0, true);
+    //     _board[5, 0] = new Bishop(5, 0, true);
+    //     _board[6, 0] = new Knight(6, 0, true);
+    //     _board[7, 0] = new Rook(7, 0, true);
+    //     // White Rooks, Knights, Bishops, Queen, and King
+    //     
+    //     _board[0, 6] = new Pawn(0, 6, false);
+    //     _board[1, 6] = new Pawn(1, 6, false);
+    //     _board[2, 6] = new Pawn(2, 6, false);
+    //     _board[3, 6] = new Pawn(3, 6, false);
+    //     _board[4, 6] = new Pawn(4, 6, false);
+    //     _board[5, 6] = new Pawn(5, 6, false);
+    //     _board[6, 6] = new Pawn(6, 6, false);
+    //     _board[7, 6] = new Pawn(7, 6, false);
+    //     // Black Pawns
+    //     
+    //     _board[0, 7] = new Rook(0, 7, false);
+    //     _board[1, 7] = new Knight(1, 7, false);
+    //     _board[2, 7] = new Bishop(2, 7, false);
+    //     _board[3, 7] = new Queen(3, 7, false);
+    //     _board[4, 7] = new King(4, 7, false);
+    //     _board[5, 7] = new Bishop(5, 7, false);
+    //     _board[6, 7] = new Knight(6, 7, false);
+    //     _board[7, 7] = new Rook(7, 7, false);
+    //     // Black Rooks, Knights, Bishops, Queen, and King
+    //
+    // }
+
     private string GenerateCurrentFen()
-    // Generates a Fen string from the current game state
+    // Generates a FEN string from the current game state
     {
 
         StringBuilder fen = new StringBuilder();
@@ -166,26 +165,39 @@ public class Game
         return fen.ToString();
 
     }
-    
-    private void SetGamestateWithFen(string fen) {
-    // Generates a Fen string from the current game state
+
+    private void SetGamestateWithFen(string fen)
+        // Generates a FEN string from the current game state
+    {
+
+        string errorMsg = "[ERROR] An illegal FEN string was used: ";
+        string unexpectedChar = errorMsg + "un unexpected character was found in ";
 
         Point currentPos = new Point(0, 7);
-        Piece? currentPiece;
+        Piece? currentPiece = null;
 
-        foreach(char c in fen)
+        string[] fenSplit = fen.Split(' ');
+        if (fenSplit.Length != 6) throw new ArgumentException(errorMsg + "incorrect element count", nameof(fen));
+        string fenBoard = fenSplit[0];
+        string fenTurn = fenSplit[1];
+        string fenCastle = fenSplit[2];
+        string fenEnPassant = fenSplit[3];
+        string fenHalfmove = fenSplit[4];
+        string fenFullmove = fenSplit[5];
+        // Split the FEN into the elements specified by the standard
+
+        foreach (char c in fenBoard)
         {
 
             switch (c)
             {
-                
-                case ' ' or '-':
-                    break;
+
                 case '/':
-                    currentPos.Y++;
+                    currentPos.X = 0;
+                    currentPos.Y--;
                     break;
-                case >= '0' and <= '7': 
-                    currentPos.X += (c - '0');
+                case >= '1' and <= '8':
+                    currentPos.X += (c - '1');
                     break;
                 case 'p':
                     currentPiece = new Pawn(currentPos, false);
@@ -203,33 +215,94 @@ public class Game
                     currentPiece = new Queen(currentPos, false);
                     break;
                 case 'k':
-                    currentPiece = new Rook(currentPos, false);
+                    currentPiece = new King(currentPos, false);
                     break;
                 case 'P':
-                    currentPiece = new Rook(currentPos, false);
+                    currentPiece = new Pawn(currentPos, false);
                     break;
                 case 'R':
                     currentPiece = new Rook(currentPos, false);
                     break;
                 case 'N':
-                    currentPiece = new Rook(currentPos, false);
+                    currentPiece = new Knight(currentPos, false);
                     break;
                 case 'B':
-                    currentPiece = new Rook(currentPos, false);
+                    currentPiece = new Bishop(currentPos, false);
                     break;
                 case 'Q':
-                    currentPiece = new Rook(currentPos, false);
+                    currentPiece = new Queen(currentPos, false);
                     break;
                 case 'K':
-                    currentPiece = new Rook(currentPos, false);
+                    currentPiece = new King(currentPos, false);
                     break;
+                default:
+                    throw new ArgumentException(unexpectedChar + "board section", nameof(fen));
 
             }
 
             if (currentPos.IsOutOfBounds())
-                throw new ArgumentOutOfRangeException(nameof(fen), "[ERROR] An illegal FEN String was used: ran out of board bounds");
+                throw new ArgumentOutOfRangeException(nameof(fen), errorMsg + "ran out of board bounds");
+
+            if (currentPiece != null) _board[currentPos.X, currentPos.Y] = currentPiece;
 
         }
+
+        switch (fenTurn)
+        {
+
+            case "w":
+                _isWhiteTurn = true;
+                break;
+            case "b":
+                _isWhiteTurn = false;
+                break;
+            default:
+                throw new ArgumentException(unexpectedChar + "turn section",
+                    nameof(fen));
+
+        }
+
+        foreach (char c in fenCastle)
+        {
+
+            switch (c)
+            {
+
+                case '-':
+                    break;
+                case 'K':
+                    _whiteCanCastleKingside = true;
+                    break;
+                case 'Q':
+                    _whiteCanCastleQueenside = true;
+                    break;
+                case 'k':
+                    _blackCanCastleKingside = true;
+                    break;
+                case 'q':
+                    _blackCanCastleQueenside = true;
+                    break;
+                default:
+                    throw new ArgumentException(unexpectedChar + "castle section");
+
+            }
+
+        }
+
+        if (fenEnPassant != "-")
+        {
+            if (fenEnPassant.Length != 2 || (fenEnPassant[0] is <= 'a' or >= 'h') ||
+                (fenEnPassant[1] is <= '1' or >= '8')) throw new ArgumentException(unexpectedChar + "en passant section", nameof(fen));
+            _enPassantTile = new Point(fenEnPassant[0] - 'a', fenEnPassant[1] - '1');
+            
+        }
+
+        try { _halfMoves = int.Parse(fenHalfmove); }
+        catch (FormatException) { throw new ArgumentException(unexpectedChar + "halfmove section", nameof(fen)); }
+        try { _fullMoves = int.Parse(fenFullmove); }
+        catch (FormatException) { throw new ArgumentException(unexpectedChar + "fullmove section", nameof(fen)); }
+
+        _fen = fen;
 
     }
 
