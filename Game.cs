@@ -62,54 +62,6 @@ public class Game
     
     }
 
-    // private void ResetGame()
-    // // Resets the chess board to the default chess starting layout
-    // // Assumes that _board has been initialized
-    // // TODO: Make a different function that does this from a FEN string (probably delete this one as well)
-    // {
-    //
-    //     _board[0, 1] = new Pawn(0, 1, true);
-    //     _board[1, 1] = new Pawn(1, 1, true);
-    //     _board[2, 1] = new Pawn(2, 1, true);
-    //     _board[3, 1] = new Pawn(3, 1, true);
-    //     _board[4, 1] = new Pawn(4, 1, true);
-    //     _board[5, 1] = new Pawn(5, 1, true);
-    //     _board[6, 1] = new Pawn(6, 1, true);
-    //     _board[7, 1] = new Pawn(7, 1, true);
-    //     // White Pawns
-    //     
-    //     _board[0, 0] = new Rook(0, 0, true);
-    //     _board[1, 0] = new Knight(1, 0, true);
-    //     _board[2, 0] = new Bishop(2, 0, true);
-    //     _board[3, 0] = new Queen(3, 0, true);
-    //     _board[4, 0] = new King(4, 0, true);
-    //     _board[5, 0] = new Bishop(5, 0, true);
-    //     _board[6, 0] = new Knight(6, 0, true);
-    //     _board[7, 0] = new Rook(7, 0, true);
-    //     // White Rooks, Knights, Bishops, Queen, and King
-    //     
-    //     _board[0, 6] = new Pawn(0, 6, false);
-    //     _board[1, 6] = new Pawn(1, 6, false);
-    //     _board[2, 6] = new Pawn(2, 6, false);
-    //     _board[3, 6] = new Pawn(3, 6, false);
-    //     _board[4, 6] = new Pawn(4, 6, false);
-    //     _board[5, 6] = new Pawn(5, 6, false);
-    //     _board[6, 6] = new Pawn(6, 6, false);
-    //     _board[7, 6] = new Pawn(7, 6, false);
-    //     // Black Pawns
-    //     
-    //     _board[0, 7] = new Rook(0, 7, false);
-    //     _board[1, 7] = new Knight(1, 7, false);
-    //     _board[2, 7] = new Bishop(2, 7, false);
-    //     _board[3, 7] = new Queen(3, 7, false);
-    //     _board[4, 7] = new King(4, 7, false);
-    //     _board[5, 7] = new Bishop(5, 7, false);
-    //     _board[6, 7] = new Knight(6, 7, false);
-    //     _board[7, 7] = new Rook(7, 7, false);
-    //     // Black Rooks, Knights, Bishops, Queen, and King
-    //
-    // }
-
     private string GenerateCurrentFen()
     // Generates a FEN string from the current game state
     {
@@ -166,15 +118,13 @@ public class Game
 
     }
 
-    private void SetGamestateWithFen(string fen)
-        // Generates a FEN string from the current game state
+    private void SetGamestateWithFen(string fen) 
+    // Parses a FEN string into a game state
     {
 
         string errorMsg = "[ERROR] An illegal FEN string was used: ";
-        string unexpectedChar = errorMsg + "un unexpected character was found in ";
-
-        Point currentPos = new Point(0, 7);
-        Piece? currentPiece = null;
+        string unexpectedChar = errorMsg + "an unexpected character was found in ";
+        string notEnoughChars = errorMsg + "incorrect amount of characters in board section";
 
         string[] fenSplit = fen.Split(' ');
         if (fenSplit.Length != 6) throw new ArgumentException(errorMsg + "incorrect element count", nameof(fen));
@@ -185,7 +135,10 @@ public class Game
         string fenHalfmove = fenSplit[4];
         string fenFullmove = fenSplit[5];
         // Split the FEN into the elements specified by the standard
-
+        
+        Point currentPos = new Point(0, 7);
+        Piece? currentPiece = null;
+        
         foreach (char c in fenBoard)
         {
 
@@ -193,7 +146,8 @@ public class Game
             {
 
                 case '/':
-                    currentPos.X = 0;
+                    if (currentPos.X == 7) currentPos.X = 0;
+                    else throw new ArgumentException(notEnoughChars, nameof(fen));
                     currentPos.Y--;
                     break;
                 case >= '1' and <= '8':
@@ -243,9 +197,15 @@ public class Game
             if (currentPos.IsOutOfBounds())
                 throw new ArgumentOutOfRangeException(nameof(fen), errorMsg + "ran out of board bounds");
 
-            if (currentPiece != null) _board[currentPos.X, currentPos.Y] = currentPiece;
+            if (currentPiece == null) continue; 
+            _board[currentPos.X, currentPos.Y] = currentPiece;
+            currentPiece = null;
+            if(currentPos.X < 7) currentPos.X++;
 
         }
+
+        if (currentPos.X != 7 || currentPos.Y != 0)
+            throw new ArgumentException(notEnoughChars, nameof(fen));
 
         switch (fenTurn)
         {
