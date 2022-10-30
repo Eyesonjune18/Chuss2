@@ -1,3 +1,3 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using Chuss2;
 
-Console.WriteLine("Hello, World!");
+Game g = new Game();
