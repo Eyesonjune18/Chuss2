@@ -30,13 +30,11 @@ public class Point
 
     }
 
-    public bool IsOutOfBounds()
-    // Returns true if the Point is outside of the normal 8x8 chess board boundaries
+    public bool IsOutOfBounds() => X is < 0 or > 7 || Y is < 0 or > 7;
+    // Checks if the Point is outside of the normal 8x8 chess board boundaries
     // Not built into the accessors or constructor for flexibility purposes
-    {
 
-        return ((X is < 0 or > 7) || (Y is < 0 or > 7));
-
-    }
+    public bool HasSameCoords(Point p) => X == p.X && Y == p.Y;
+    // Checks if this Point has the same coordinates as another given Point
     
 }

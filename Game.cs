@@ -3,10 +3,12 @@
 namespace Chuss2;
 
 public class Game
-// Represents an overall Game-state, including the Board, Players, and Pieces,
+// Represents an overall gamestate, including the Board, Players, and Pieces,
 // along with any game-specific settings/options
 {
 
+    #region Fields
+    
     private Piece?[,] _board;
     // The 8x8 grid of Pieces
     private Point? _enPassantTile;
@@ -31,7 +33,11 @@ public class Game
     // The white Pieces that have been captured by black
     private List<Piece> _capturedBlackPieces;
     // The black Pieces that have been captured by white
+    
+    #endregion
 
+    #region Constructors
+    
     public Game()
     // Default constructor for starting a new Game
     {
@@ -54,67 +60,19 @@ public class Game
         _capturedBlackPieces = new List<Piece>();
 
     }
-
+    
+    #endregion
+    
+    #region Mutators
+    
     private void ResetGame()
+    // Resets all fields to reflect the default gamestate
     {
     
         SetGamestateWithFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0");
-    
-    }
-
-    private string GenerateCurrentFen()
-    // Generates a FEN string from the current game state
-    {
-
-        StringBuilder fen = new StringBuilder();
-        int emptyTilesInSection = 0;
-        // Represents the amount of sequential tiles without Pieces, to be reset after each section is broken,
-        // or at the end of a row when broken by a '/'
-
-        for (int pos = 0; pos < 64; pos++)
-        {
-
-            Piece? currentPiece = PieceAtPosition(Translate1DCoordTo2D(pos));
-            // Get the current Piece from the coordinate on the board corresponding to the 1D coordinate pos
-
-            if (pos != 63 && (pos + 1) % 8 == 0)
-                // At the end of a row, except for the very last tile (7, 0)
-            {
-
-                if (emptyTilesInSection != 0) fen.Append(emptyTilesInSection + 1);
-                emptyTilesInSection = 0;
-                // If an empty tile section is currently being evaluated, break it and reset the counter
-                fen.Append('/');
-
-            }
-            else if (currentPiece == null) emptyTilesInSection++;
-            // If the tile is null, either start or continue incrementing the section counter
-            else fen.Append(currentPiece.PieceTypeChar);
-            // If there is a Piece, append the char representing the piece (ex. white Pawn = 'P')
-
-        }
-
-        fen.Append(_isWhiteTurn ? " w" : " b");
-        // Add a 'w' or 'b' representing the current turn color
-
-        fen.Append(' ');
-        if (_whiteCanCastleKingside) fen.Append('K');
-        if (_whiteCanCastleQueenside) fen.Append('Q');
-        if (_blackCanCastleKingside) fen.Append('k');
-        if (_blackCanCastleQueenside) fen.Append('q');
-        if (!(_whiteCanCastleKingside || _whiteCanCastleQueenside || _blackCanCastleKingside ||
-              _blackCanCastleQueenside)) fen.Append('-');
-        // Add one or more of the characters in "KQkq" depending on castling options for each side
-        // If neither side has castling options, add a '-'
-
-        fen.Append(' ');
-        fen.Append((_enPassantTile == null) ? '-' : _enPassantTile.ToAlgebraicNotation());
-        // If there is an en passant target tile, append its algebraic name
-
-        fen.Append(" " + _halfMoves + " " + _fullMoves);
-        // Add the number of halfmoves and fullmoves
-
-        return fen.ToString();
+        _capturedWhitePieces = new List<Piece>();
+        _capturedBlackPieces = new List<Piece>();
+        // TODO: Figure out how the captured pieces are going to be passed
 
     }
 
@@ -153,41 +111,41 @@ public class Game
                 case >= '1' and <= '8':
                     currentPos.X += (c - '1');
                     break;
-                case 'p':
-                    currentPiece = new Pawn(currentPos, false);
-                    break;
-                case 'r':
-                    currentPiece = new Rook(currentPos, false);
-                    break;
-                case 'n':
-                    currentPiece = new Knight(currentPos, false);
-                    break;
-                case 'b':
-                    currentPiece = new Bishop(currentPos, false);
-                    break;
-                case 'q':
-                    currentPiece = new Queen(currentPos, false);
-                    break;
-                case 'k':
-                    currentPiece = new King(currentPos, false);
-                    break;
                 case 'P':
-                    currentPiece = new Pawn(currentPos, false);
+                    currentPiece = new Pawn(true);
                     break;
                 case 'R':
-                    currentPiece = new Rook(currentPos, false);
+                    currentPiece = new Rook(true);
                     break;
                 case 'N':
-                    currentPiece = new Knight(currentPos, false);
+                    currentPiece = new Knight(true);
                     break;
                 case 'B':
-                    currentPiece = new Bishop(currentPos, false);
+                    currentPiece = new Bishop(true);
                     break;
                 case 'Q':
-                    currentPiece = new Queen(currentPos, false);
+                    currentPiece = new Queen(true);
                     break;
                 case 'K':
-                    currentPiece = new King(currentPos, false);
+                    currentPiece = new King(true);
+                    break;
+                case 'p':
+                    currentPiece = new Pawn(false);
+                    break;
+                case 'r':
+                    currentPiece = new Rook(false);
+                    break;
+                case 'n':
+                    currentPiece = new Knight(false);
+                    break;
+                case 'b':
+                    currentPiece = new Bishop(false);
+                    break;
+                case 'q':
+                    currentPiece = new Queen(false);
+                    break;
+                case 'k':
+                    currentPiece = new King(false);
                     break;
                 default:
                     throw new ArgumentException(unexpectedChar + "board section", nameof(fen));
@@ -266,9 +224,94 @@ public class Game
 
     }
 
+    public void PerformMove(Point source, Point destination)
+    // Performs a move with input supplied from the user
+    {
+
+        if (source.HasSameCoords(destination))
+            throw new ArgumentException("[ERROR] A Piece cannot be moved to its own position",
+                nameof(destination));
+
+        Piece? p = PieceAtPosition(source);
+        // The piece to be moved
+        
+        if (p == null)
+            throw new ArgumentException("[ERROR] An empty tile cannot be moved", nameof(source));
+
+        if (!p.IsMoveLegal(source, destination))
+            throw new ArgumentException("[ERROR] The given Piece type cannot move in the way specified",
+                nameof(destination));
+
+        _board[destination.X, destination.Y] = PieceAtPosition(source);
+        _board[source.X, source.Y] = null;
+        Console.WriteLine("Successful move from (" + source.X + ", " + source.Y + ") to (" + destination.X + ", " + destination.Y + ")");
+
+    }
+
+    #endregion
+    
+    #region Accessors
+    
+    private string GenerateCurrentFen()
+    // Generates a FEN string from the current game state
+    {
+
+        StringBuilder fen = new StringBuilder();
+        int emptyTilesInSection = 0;
+        // Represents the amount of sequential tiles without Pieces, to be reset after each section is broken,
+        // or at the end of a row when broken by a '/'
+
+        for (int pos = 0; pos < 64; pos++)
+        {
+
+            Piece? currentPiece = PieceAtPosition(Translate1DCoordTo2D(pos));
+            // Get the current Piece from the coordinate on the board corresponding to the 1D coordinate pos
+
+            if (pos != 63 && (pos + 1) % 8 == 0)
+                // At the end of a row, except for the very last tile (7, 0)
+            {
+
+                if (emptyTilesInSection != 0) fen.Append(emptyTilesInSection + 1);
+                emptyTilesInSection = 0;
+                // If an empty tile section is currently being evaluated, break it and reset the counter
+                fen.Append('/');
+
+            }
+            else if (currentPiece == null) emptyTilesInSection++;
+            // If the tile is null, either start or continue incrementing the section counter
+            else fen.Append(currentPiece.PieceTypeChar);
+            // If there is a Piece, append the char representing the piece (ex. white Pawn = 'P')
+
+        }
+
+        fen.Append(_isWhiteTurn ? " w" : " b");
+        // Add a 'w' or 'b' representing the current turn color
+
+        fen.Append(' ');
+        if (_whiteCanCastleKingside) fen.Append('K');
+        if (_whiteCanCastleQueenside) fen.Append('Q');
+        if (_blackCanCastleKingside) fen.Append('k');
+        if (_blackCanCastleQueenside) fen.Append('q');
+        if (!(_whiteCanCastleKingside || _whiteCanCastleQueenside || _blackCanCastleKingside ||
+              _blackCanCastleQueenside)) fen.Append('-');
+        // Add one or more of the characters in "KQkq" depending on castling options for each side
+        // If neither side has castling options, add a '-'
+
+        fen.Append(' ');
+        fen.Append((_enPassantTile == null) ? '-' : _enPassantTile.ToAlgebraicNotation());
+        // If there is an en passant target tile, append its algebraic name
+
+        fen.Append(" " + _halfMoves + " " + _fullMoves);
+        // Add the number of halfmoves and fullmoves
+
+        return fen.ToString();
+
+    }
+    
     private static Point Translate1DCoordTo2D(int coord)
     // Translates a 1D board coordinate to a 2D board coordinate
     // Top-left to bottom-right
+    // TODO: Figure out if this should go in Point
     {
         
         return new Point(coord % 8, 7 - coord / 8);
@@ -288,12 +331,11 @@ public class Game
     {
         
         if (!new Point(pos.X, pos.Y).IsOutOfBounds()) return _board[pos.X, pos.Y];
-        else throw new ArgumentOutOfRangeException(nameof(pos), "[ERROR] An attempt was made to retrieve a Piece outside the boundaries of the board");
+        throw new ArgumentOutOfRangeException(nameof(pos), "[ERROR] An attempt was made to retrieve a Piece outside the board boundaries");
         // Throw exception if position is out of 8x8 range
-
-        return null;
-        // Should never happen
 
     }
 
+    #endregion
+    
 }
