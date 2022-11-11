@@ -1,9 +1,6 @@
 ﻿using Chuss2;
 
-Gamestate g = new Gamestate();
-g.PrintBoard();
-
-g.SetGamestateWithFen("r4bkr/ppp3pp/2n1B3/4p3/8/8/PPPP1PPP/RNB1K2R b KQ - 0 3");
+Gamestate g = new Gamestate("Q6K/7k/8/8/8/8/8/8 b - - 0 0");
 g.PrintBoard();
 Console.WriteLine(g.GenerateCurrentFen());
 

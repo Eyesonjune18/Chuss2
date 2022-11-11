@@ -77,7 +77,7 @@ public class Gamestate
 
     #region Mutators
 
-    public void SetGamestateWithFen(string fen) 
+    private void SetGamestateWithFen(string fen) 
     // Parses a FEN string into a Gamestate by setting all relevant fields
     {
 
@@ -251,15 +251,18 @@ public class Gamestate
             // Knights are excluded from collision checker because they can hop over Pieces
             return new ValidationResult.Invalid("Pieces cannot collide with other Pieces when moving");
 
-        if (destinationP is not null && sourceP.IsWhite == destinationP.IsWhite)
+        if (destinationP is not null && sourceP.IsWhite == destinationP.IsWhite && destinationP is not King)
             // If the captured Piece is the same color as the moved Piece
             return new ValidationResult.Invalid("A Piece cannot capture another Piece of the same color");
-        if (destinationP is not null && sourceP.IsWhite != destinationP.IsWhite)
+        if (destinationP is not null && sourceP.IsWhite != destinationP.IsWhite && destinationP is not King)
             // If there is a capture and it is valid (captured Piece is the opposite color)
             result = new ValidationResult.Valid(destinationP);
             // Add a captured Piece to the result
         else if (destinationP is null) result = new ValidationResult.Valid();
             // If the move has not tripped any illegality checks and it is not a capture, the move is valid
+
+            if (LookForCheck(source, destination))
+                return new ValidationResult.Invalid("A move cannot put the current side's King in check");
 
         if (sourceP is Pawn pw)
         {
@@ -295,14 +298,48 @@ public class Gamestate
     // Returns true if the the current color's King will be in check after the given move
     {
 
-        // foreach (Piece p in _board)
-        // {
-        //
-        //     // TODO: Add board-specific legality checker function
-        //
-        // }
+        Gamestate afterMoveGameState = new Gamestate(GenerateCurrentFen());
+        afterMoveGameState.MovePiece(source, destination);
+
+        Point kingPos = KingPos();
+
+        for (int i = 0; i < 64; i++)
+        {
+            
+            Point pos = Utilities.Translate1DCoordTo2D(i);
+            Piece? p = _board.PieceAtPosition(pos);
+            
+            if (p is null) continue;
+
+            if (_isWhiteTurn && p.IsWhite || !_isWhiteTurn && !p.IsWhite) continue;
+            // Skip friendly Pieces
+
+            if (afterMoveGameState.ValidateMove(pos, kingPos) is ValidationResult.Valid) return true;
+
+            // TODO: Add board-specific legality checker function
+
+        }
 
         return false;
+
+    }
+
+    private Point KingPos()
+    // Retrieves the position of the current side's King
+    {
+
+        for (int i = 0; i < 64; i++)
+        {
+
+            Point pos = Utilities.Translate1DCoordTo2D(i);
+            Piece? p = _board.PieceAtPosition(pos);
+
+            if (p is not null && p is King && p.IsWhite == _isWhiteTurn) return pos;
+
+        }
+
+        return new Point(-1, -1);
+        // Should never happen, as the King cannot be captured
 
     }
 

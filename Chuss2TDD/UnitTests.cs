@@ -5,10 +5,12 @@ public class Tests
     private const string DefaultFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
     private const string SpecialFen1 = "r4bkr/ppp3pp/2n1B3/4p3/8/8/PPPP1PPP/RNB1K2R b KQ - 0 3";
     private const string SpecialFen2 = "1rr5/1pp1k1pp/p1nb4/3Q1p2/1P1BP1P1/5P1b/P1P1K2P/4R2R b - - 3 19";
+    private const string SpecialFen3 = "Q7/7k/K7/8/8/8/8/8 b - - 0 0";
     private readonly Board _defaultBoard = new Board();
     // Board has default FEN built-in
     private readonly Board _specialBoard1 = new Board(SpecialFen1.Split(' ')[0]);
     private readonly Board _specialBoard2 = new Board(SpecialFen2.Split(' ')[0]);
+    private readonly Board _specialBoard3 = new Board(SpecialFen3.Split(' ')[0]);
     // Functionality of Board constructor has been manually verified
 
     [SetUp]
@@ -49,6 +51,17 @@ public class Tests
         Gamestate g = new Gamestate(SpecialFen2);
 
         Assert.That(g.GenerateCurrentFen(), Is.EqualTo(SpecialFen2));
+
+    }
+    
+    [Test]
+    public void GenerateFenTestSpecial3() 
+    // Tests GenerateCurrentFen() using a miscellaneous FEN string
+    {
+
+        Gamestate g = new Gamestate(SpecialFen3);
+
+        Assert.That(g.GenerateCurrentFen(), Is.EqualTo(SpecialFen3));
 
     }
 
@@ -125,6 +138,33 @@ public class Tests
             Assert.That(g.FullMoves, Is.EqualTo(19));
             Assert.That(!g.IsWhiteTurn);
             Assert.That(g.GenerateCurrentFen(), Is.EqualTo(SpecialFen2));
+            Assert.That(!g.CapturedWhitePieces.Any());
+            Assert.That(!g.CapturedBlackPieces.Any());
+            
+        });
+
+    }
+
+    [Test]
+    public void SetGamestateTestSpecial3() 
+    // Tests all properties being set correctly for a miscellaneous FEN string
+    {
+
+        Gamestate g = new Gamestate(SpecialFen3);
+        
+        Assert.Multiple(() =>
+        {
+            
+            Assert.That(g.Board.Equals(_specialBoard3), Is.True);
+            Assert.That(g.EnPassantTile is null);
+            Assert.That(!g.WhiteCanCastleKingside);
+            Assert.That(!g.WhiteCanCastleQueenside);
+            Assert.That(!g.BlackCanCastleKingside);
+            Assert.That(!g.BlackCanCastleQueenside);
+            Assert.That(g.HalfMoves, Is.EqualTo(0));
+            Assert.That(g.FullMoves, Is.EqualTo(0));
+            Assert.That(!g.IsWhiteTurn);
+            Assert.That(g.GenerateCurrentFen(), Is.EqualTo(SpecialFen3));
             Assert.That(!g.CapturedWhitePieces.Any());
             Assert.That(!g.CapturedBlackPieces.Any());
             

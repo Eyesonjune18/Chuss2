@@ -94,6 +94,8 @@ public class Board
 
     }
 
+    public Piece?[,] PieceArr => _pieceArr;
+
     public void SetPiece(Point pos, Piece? piece) => _pieceArr[pos.X, pos.Y] = piece;
     // Sets the Piece at a given tile
 
@@ -131,14 +133,24 @@ public class Board
             Piece? currentPiece = PieceAtPosition(Utilities.Translate1DCoordTo2D(pos));
             // Get the current Piece from the coordinate on the board corresponding to the 1D coordinate pos
 
-            if (pos != 0 && pos != 63 && pos % 8 == 0)
-                // At the end of a row, except for the very last tile (7, 0)
+            if (pos != 0 && (pos % 8 == 0 || pos == 63))
+                // At the end of a row, append '/' and do other behavior
+                // TODO: Figure out a better way to fix issue with last tile
             {
 
-                if (emptyTilesInSection > 0) fen.Append(emptyTilesInSection);
-                emptyTilesInSection = 0;
-                // If an empty tile section is currently being evaluated, break it and reset the counter
-                fen.Append('/');
+                if (pos == 63 && currentPiece is null) emptyTilesInSection++;
+                // Make sure last tile is evaluated
+
+                if (emptyTilesInSection > 0)
+                    // If an empty tile section is currently being evaluated, break it and reset the counter
+                {
+                    
+                    fen.Append(emptyTilesInSection);
+                    emptyTilesInSection = 0;
+                    
+                }
+                
+                if (pos != 63) fen.Append('/');
 
             }
             if (currentPiece is null) emptyTilesInSection++;
