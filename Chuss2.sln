@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chuss2", "Chuss2\Chuss2.csproj", "{29412FE4-9268-460D-A2D5-02D9E5256DDF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chuss2TDD", "Chuss2TDD\Chuss2TDD.csproj", "{F05AA8F5-E7D6-4BB2-9C53-F58EB7A9D7A9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{29412FE4-9268-460D-A2D5-02D9E5256DDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29412FE4-9268-460D-A2D5-02D9E5256DDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29412FE4-9268-460D-A2D5-02D9E5256DDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29412FE4-9268-460D-A2D5-02D9E5256DDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F05AA8F5-E7D6-4BB2-9C53-F58EB7A9D7A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F05AA8F5-E7D6-4BB2-9C53-F58EB7A9D7A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F05AA8F5-E7D6-4BB2-9C53-F58EB7A9D7A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F05AA8F5-E7D6-4BB2-9C53-F58EB7A9D7A9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

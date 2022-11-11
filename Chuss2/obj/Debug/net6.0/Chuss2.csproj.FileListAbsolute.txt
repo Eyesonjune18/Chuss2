@@ -1,0 +1,15 @@
+C:\Users\Lowell Thoerner\RiderProjects\Chuss2\Chuss2\bin\Debug\net6.0\Chuss2.exe
+C:\Users\Lowell Thoerner\RiderProjects\Chuss2\Chuss2\bin\Debug\net6.0\Chuss2.deps.json
+C:\Users\Lowell Thoerner\RiderProjects\Chuss2\Chuss2\bin\Debug\net6.0\Chuss2.runtimeconfig.json
+C:\Users\Lowell Thoerner\RiderProjects\Chuss2\Chuss2\bin\Debug\net6.0\Chuss2.dll
+C:\Users\Lowell Thoerner\RiderProjects\Chuss2\Chuss2\bin\Debug\net6.0\Chuss2.pdb
+C:\Users\Lowell Thoerner\RiderProjects\Chuss2\Chuss2\obj\Debug\net6.0\Chuss2.csproj.AssemblyReference.cache
+C:\Users\Lowell Thoerner\RiderProjects\Chuss2\Chuss2\obj\Debug\net6.0\Chuss2.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Lowell Thoerner\RiderProjects\Chuss2\Chuss2\obj\Debug\net6.0\Chuss2.AssemblyInfoInputs.cache
+C:\Users\Lowell Thoerner\RiderProjects\Chuss2\Chuss2\obj\Debug\net6.0\Chuss2.AssemblyInfo.cs
+C:\Users\Lowell Thoerner\RiderProjects\Chuss2\Chuss2\obj\Debug\net6.0\Chuss2.csproj.CoreCompileInputs.cache
+C:\Users\Lowell Thoerner\RiderProjects\Chuss2\Chuss2\obj\Debug\net6.0\Chuss2.dll
+C:\Users\Lowell Thoerner\RiderProjects\Chuss2\Chuss2\obj\Debug\net6.0\refint\Chuss2.dll
+C:\Users\Lowell Thoerner\RiderProjects\Chuss2\Chuss2\obj\Debug\net6.0\Chuss2.pdb
+C:\Users\Lowell Thoerner\RiderProjects\Chuss2\Chuss2\obj\Debug\net6.0\Chuss2.genruntimeconfig.cache
+C:\Users\Lowell Thoerner\RiderProjects\Chuss2\Chuss2\obj\Debug\net6.0\ref\Chuss2.dll
