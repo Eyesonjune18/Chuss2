@@ -1,4 +1,6 @@
-﻿namespace Chuss2;
+﻿using System.Text;
+
+namespace Chuss2;
 
 public class Board
 {
@@ -113,6 +115,50 @@ public class Board
         
     }
 
+    public string GenerateFen()
+    // Generates the section of the FEN string representing the Board
+    {
+
+        StringBuilder fen = new StringBuilder();
+        
+        int emptyTilesInSection = 0;
+        // Represents the amount of sequential tiles without Pieces, to be reset after each section is broken,
+        // or at the end of a row when broken by a '/'
+
+        for (int pos = 0; pos < 64; pos++)
+        {
+
+            Piece? currentPiece = PieceAtPosition(Utilities.Translate1DCoordTo2D(pos));
+            // Get the current Piece from the coordinate on the board corresponding to the 1D coordinate pos
+
+            if (pos != 0 && pos != 63 && pos % 8 == 0)
+                // At the end of a row, except for the very last tile (7, 0)
+            {
+
+                if (emptyTilesInSection > 0) fen.Append(emptyTilesInSection);
+                emptyTilesInSection = 0;
+                // If an empty tile section is currently being evaluated, break it and reset the counter
+                fen.Append('/');
+
+            }
+            if (currentPiece is null) emptyTilesInSection++;
+            // If the tile is null, either start or continue incrementing the section counter
+            else
+            {
+
+                if (emptyTilesInSection > 0) fen.Append(emptyTilesInSection);
+                fen.Append(currentPiece.PieceTypeChar);
+                emptyTilesInSection = 0;
+
+            }
+            // If there is a Piece, append the char representing the piece (ex. white Pawn = 'P')
+
+        }
+
+        return fen.ToString();
+
+    }
+    
     public Piece? PieceAtPosition(Point pos)
     // Returns the Piece at a given tile
     {
