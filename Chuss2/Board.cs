@@ -6,8 +6,10 @@ public class Board
     private readonly Piece?[,] _pieceArr = new Piece?[8, 8];
 
     public Board() : this("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") {}
+    // Default constructor - uses default FEN string
 
     public Board(string fen)
+    // Main constructor - uses specified FEN string
     {
 
         int currentPos1D = 0;

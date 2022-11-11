@@ -10,25 +10,17 @@ public class Gamestate
     #region Fields
     
     private Board _board;
-    // The 8x8 grid of Pieces
     private Point? _enPassantTile;
     // The current tile that can be used to en passant capture
     private bool _whiteCanCastleKingside;
-    // Whether white can still castle kingside
     private bool _whiteCanCastleQueenside;
-    // Whether white can still castle queenside
     private bool _blackCanCastleKingside;
-    // Whether black can still castle kingside
     private bool _blackCanCastleQueenside;
-    // Whether black can still castle queenside
     private int _halfMoves;
     // Number of halfmoves (turns since Pawn has been moved, or a Piece has been captured)
     private int _fullMoves;
     // Number of fullmoves (total moves in the game)
     private bool _isWhiteTurn;
-    // Whether the current turn is for white (true) or black (false)
-    private string? _fen;
-    // A string that represents the Board state
     private readonly List<Piece> _capturedWhitePieces;
     // The white Pieces that have been captured by black
     private readonly List<Piece> _capturedBlackPieces;
@@ -39,10 +31,10 @@ public class Gamestate
     #region Constructors
 
     public Gamestate() : this("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0") {}
-    // Default constructor for starting a new Gamestate
+    // Default constructor - uses default FEN string
 
     public Gamestate(string fen) 
-    // Default constructor for starting a new Gamestate
+    // Main constructor - uses specified FEN string
     {
         
         _board = new Board();
@@ -77,8 +69,6 @@ public class Gamestate
 
     public bool IsWhiteTurn => _isWhiteTurn;
 
-    public string? Fen => _fen;
-
     public List<Piece> CapturedWhitePieces => _capturedWhitePieces;
 
     public List<Piece> CapturedBlackPieces => _capturedBlackPieces;
@@ -90,8 +80,6 @@ public class Gamestate
     public void SetGamestateWithFen(string fen) 
     // Parses a FEN string into a Gamestate by setting all relevant fields
     {
-        
-        _fen = fen;
 
         const string errorMsg = "[ERROR] An illegal FEN string was used: ";
         const string unexpectedChar = errorMsg + "an unexpected character was found in ";
@@ -220,19 +208,26 @@ public class Gamestate
             Piece? currentPiece = _board.PieceAtPosition(Utilities.Translate1DCoordTo2D(pos));
             // Get the current Piece from the coordinate on the board corresponding to the 1D coordinate pos
 
-            if (pos != 63 && (pos + 1) % 8 == 0)
+            if (pos != 0 && pos != 63 && pos % 8 == 0)
                 // At the end of a row, except for the very last tile (7, 0)
             {
 
-                if (emptyTilesInSection != 0) fen.Append(emptyTilesInSection + 1);
+                if (emptyTilesInSection > 0) fen.Append(emptyTilesInSection);
                 emptyTilesInSection = 0;
                 // If an empty tile section is currently being evaluated, break it and reset the counter
                 fen.Append('/');
 
             }
-            else if (currentPiece == null) emptyTilesInSection++;
+            if (currentPiece is null) emptyTilesInSection++;
             // If the tile is null, either start or continue incrementing the section counter
-            else fen.Append(currentPiece.PieceTypeChar);
+            else
+            {
+
+                if (emptyTilesInSection > 0) fen.Append(emptyTilesInSection);
+                fen.Append(currentPiece.PieceTypeChar);
+                emptyTilesInSection = 0;
+
+            }
             // If there is a Piece, append the char representing the piece (ex. white Pawn = 'P')
 
         }
@@ -251,7 +246,7 @@ public class Gamestate
         // If neither side has castling options, add a '-'
 
         fen.Append(' ');
-        fen.Append((_enPassantTile == null) ? '-' : Utilities.ToAlgebraicNotation(_enPassantTile));
+        fen.Append(_enPassantTile is null ? '-' : Utilities.ToAlgebraicNotation(_enPassantTile));
         // If there is an en passant target tile, append its algebraic name
 
         fen.Append(" " + _halfMoves + " " + _fullMoves);
@@ -320,7 +315,7 @@ public class Gamestate
         if(!includeCaptureTile) tilesToCheck.RemoveAt(tilesToCheck.Count - 1);
         // Ignore the destination tile for collisions if not specified (generally because a piece is being captured)
 
-        return tilesToCheck.Any(p => _board.PieceAtPosition(p) != null);
+        return tilesToCheck.Any(p => _board.PieceAtPosition(p) is not null);
         // If any of the tiles in between the source and destination contain a Piece,
         // return true (collision has occurred)
         
@@ -356,7 +351,7 @@ public class Gamestate
             Piece? p = _board.PieceAtPosition(Utilities.Translate1DCoordTo2D(i));
             
             char pChar = ' ';
-            if (p != null) pChar = p.PieceTypeChar;
+            if (p is not null) pChar = p.PieceTypeChar;
 
             if (i != 0 && i % 8 == 0) Console.WriteLine();
             if ((i + (i / 8) % 2) % 2 == 0) Console.Write("[" + pChar + "]");

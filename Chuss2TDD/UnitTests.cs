@@ -53,17 +53,6 @@ public class Tests
     }
 
     [Test]
-    public void FenPropertyTestDefault()
-    // Tests the default Gamestate FEN property being set correctly
-    {
-
-        Gamestate g = new Gamestate();
-        
-        Assert.That(g.Fen, Is.EqualTo(DefaultFen));
-
-    }
-
-    [Test]
     public void SetGamestateTestDefault()
     {
         Gamestate g = new Gamestate();
@@ -80,7 +69,7 @@ public class Tests
             Assert.That(g.HalfMoves, Is.EqualTo(0));
             Assert.That(g.FullMoves, Is.EqualTo(0));
             Assert.That(g.IsWhiteTurn);
-            Assert.That(g.Fen, Is.EqualTo(DefaultFen));
+            Assert.That(g.GenerateCurrentFen(), Is.EqualTo(DefaultFen));
             Assert.That(!g.CapturedWhitePieces.Any());
             Assert.That(!g.CapturedBlackPieces.Any());
             // TODO: Add capture arrays when capture thing works
@@ -108,7 +97,7 @@ public class Tests
             Assert.That(g.HalfMoves, Is.EqualTo(0));
             Assert.That(g.FullMoves, Is.EqualTo(3));
             Assert.That(!g.IsWhiteTurn);
-            Assert.That(g.Fen, Is.EqualTo(SpecialFen1));
+            Assert.That(g.GenerateCurrentFen(), Is.EqualTo(SpecialFen1));
             Assert.That(!g.CapturedWhitePieces.Any());
             Assert.That(!g.CapturedBlackPieces.Any());
             
@@ -135,7 +124,7 @@ public class Tests
             Assert.That(g.HalfMoves, Is.EqualTo(3));
             Assert.That(g.FullMoves, Is.EqualTo(19));
             Assert.That(!g.IsWhiteTurn);
-            Assert.That(g.Fen, Is.EqualTo(SpecialFen2));
+            Assert.That(g.GenerateCurrentFen(), Is.EqualTo(SpecialFen2));
             Assert.That(!g.CapturedWhitePieces.Any());
             Assert.That(!g.CapturedBlackPieces.Any());
             
