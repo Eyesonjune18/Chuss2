@@ -225,8 +225,10 @@ public class Gamestate
         return fen.ToString();
 
     }
+
+    private ValidationResult ValidateMove(Point source, Point destination) => ValidateMove(source, destination, true);
     
-    private ValidationResult ValidateMove(Point source, Point destination)
+    private ValidationResult ValidateMove(Point source, Point destination, bool lookForCheck)
     {
 
         ValidationResult result = new ValidationResult.Invalid();
@@ -251,18 +253,18 @@ public class Gamestate
             // Knights are excluded from collision checker because they can hop over Pieces
             return new ValidationResult.Invalid("Pieces cannot collide with other Pieces when moving");
 
-        if (destinationP is not null && sourceP.IsWhite == destinationP.IsWhite && destinationP is not King)
+        if (destinationP is not null && sourceP.IsWhite == destinationP.IsWhite)
             // If the captured Piece is the same color as the moved Piece
             return new ValidationResult.Invalid("A Piece cannot capture another Piece of the same color");
-        if (destinationP is not null && sourceP.IsWhite != destinationP.IsWhite && destinationP is not King)
+        if (destinationP is not null && sourceP.IsWhite != destinationP.IsWhite)
             // If there is a capture and it is valid (captured Piece is the opposite color)
             result = new ValidationResult.Valid(destinationP);
             // Add a captured Piece to the result
         else if (destinationP is null) result = new ValidationResult.Valid();
             // If the move has not tripped any illegality checks and it is not a capture, the move is valid
 
-            if (LookForCheck(source, destination))
-                return new ValidationResult.Invalid("A move cannot put the current side's King in check");
+        if (lookForCheck && LookForCheck(source, destination))
+            return new ValidationResult.Invalid("A move cannot put the current side's King in check");
 
         if (sourceP is Pawn pw)
         {
@@ -301,20 +303,20 @@ public class Gamestate
         Gamestate afterMoveGameState = new Gamestate(GenerateCurrentFen());
         afterMoveGameState.MovePiece(source, destination);
 
-        Point kingPos = KingPos();
+        Point kingPos = afterMoveGameState.KingPos();
 
         for (int i = 0; i < 64; i++)
         {
             
             Point pos = Utilities.Translate1DCoordTo2D(i);
-            Piece? p = _board.PieceAtPosition(pos);
+            Piece? p = afterMoveGameState.Board.PieceAtPosition(pos);
             
             if (p is null) continue;
 
             if (_isWhiteTurn && p.IsWhite || !_isWhiteTurn && !p.IsWhite) continue;
             // Skip friendly Pieces
 
-            if (afterMoveGameState.ValidateMove(pos, kingPos) is ValidationResult.Valid) return true;
+            if (afterMoveGameState.ValidateMove(pos, kingPos, false) is ValidationResult.Valid) return true;
 
             // TODO: Add board-specific legality checker function
 
@@ -331,6 +333,13 @@ public class Gamestate
         for (int i = 0; i < 64; i++)
         {
 
+            if (i == 7)
+            {
+
+                Console.WriteLine();
+                
+            }
+            
             Point pos = Utilities.Translate1DCoordTo2D(i);
             Piece? p = _board.PieceAtPosition(pos);
 
