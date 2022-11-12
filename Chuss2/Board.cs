@@ -81,7 +81,23 @@ public class Board
                 throw new ArgumentOutOfRangeException(nameof(fen),
                     "[ERROR] An illegal FEN string was used: ran out of board bounds");
 
-            if (currentPiece == null) continue;
+            if (currentPiece is null) continue;
+
+            if (currentPiece is Pawn)
+            // If the Piece is a Pawn, check if it has moved already
+            // Other Piece types are irrelevant, as they do not behave differently depending on HasMoved
+            {
+
+                currentPiece.HasMoved = currentPiece.IsWhite switch
+                {
+
+                    true => currentPos2D.Y != 1,
+                    false => currentPos2D.Y != 6
+
+                };
+
+            }
+
             _pieceArr[currentPos2D.X, currentPos2D.Y] = currentPiece;
             currentPiece = null;
             currentPos1D++;

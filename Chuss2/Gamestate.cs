@@ -16,16 +16,14 @@ public class Gamestate
     private bool _whiteCanCastleQueenside;
     private bool _blackCanCastleKingside;
     private bool _blackCanCastleQueenside;
+    private bool _whiteInCheck;
+    private bool _blackInCheck;
     private int _halfMoves;
     // Number of halfmoves (turns since Pawn has been moved, or a Piece has been captured)
     private int _fullMoves;
     // Number of fullmoves (total moves in the game)
     private bool _isWhiteTurn;
-    private readonly List<Piece> _capturedWhitePieces;
-    // The white Pieces that have been captured by black
-    private readonly List<Piece> _capturedBlackPieces;
-    // The black Pieces that have been captured by white
-    
+
     #endregion
 
     #region Constructors
@@ -41,9 +39,9 @@ public class Gamestate
 
         SetGamestateWithFen(fen);
 
-        _capturedWhitePieces = new List<Piece>();
-        _capturedBlackPieces = new List<Piece>();
-        // TODO: Figure out how the captured pieces are going to be passed
+        _whiteInCheck = false;
+        _blackInCheck = false;
+        // TODO: Add in SetGamestateWithFen()
 
     }
     
@@ -69,10 +67,6 @@ public class Gamestate
 
     public bool IsWhiteTurn => _isWhiteTurn;
 
-    public List<Piece> CapturedWhitePieces => _capturedWhitePieces;
-
-    public List<Piece> CapturedBlackPieces => _capturedBlackPieces;
-    
     #endregion
 
     #region Mutators
@@ -83,10 +77,7 @@ public class Gamestate
 
         const string errorMsg = "[ERROR] An illegal FEN string was used: ";
         const string unexpectedChar = errorMsg + "an unexpected character was found in ";
-        const string notEnoughChars = errorMsg + "incorrect amount of characters in board section";
         // Add shorthands for various errors
-
-        _board.ClearBoard();
 
         string[] fenSplit = fen.Split(' ');
         if (fenSplit.Length != 6) throw new ArgumentException(errorMsg + "incorrect element count", nameof(fen));
@@ -148,9 +139,9 @@ public class Gamestate
         catch (FormatException) { throw new ArgumentException(unexpectedChar + "halfmove section", nameof(fen)); }
         try { _fullMoves = int.Parse(fenFullmove); }
         catch (FormatException) { throw new ArgumentException(unexpectedChar + "fullmove section", nameof(fen)); }
-        
+
     }
-    
+
     public void PerformMove(Point source, Point destination)
     // Performs a move with input supplied from the user
     // TODO: Add [ERROR] to invalid moves
@@ -169,12 +160,14 @@ public class Gamestate
             Piece? movedP = _board.PieceAtPosition(source);
             // If the move is valid, the moved Piece cannot be null, but nullability is included for syntactical purposes
             Piece? capturedP = v.CapturedPiece;
-            
-            if (capturedP is not null && capturedP.IsWhite) _capturedWhitePieces.Add(capturedP);
-            else if (capturedP is not null && !capturedP.IsWhite) _capturedBlackPieces.Add(capturedP);
-            // Add the captured Piece to the appropriate capture List
-            
+
             if (movedP is not null) movedP.HasMoved = true;
+
+            _fullMoves++;
+            _halfMoves += movedP is not Pawn && capturedP is null ? 1 : 0;
+            
+            _isWhiteTurn = !_isWhiteTurn;
+            // Swap the turn to the other side
 
         }
 
@@ -245,7 +238,7 @@ public class Gamestate
         if (sourceP is null) return new ValidationResult.Invalid("An empty tile cannot be moved");
             // Checks for empty tiles
 
-        if (!sourceP.IsMoveLegal(source, destination))
+        if (!sourceP.IsMoveLegal(source, destination, destinationP is not null))
             // Checks whether move pattern is legal for this Piece type
             return new ValidationResult.Invalid("The given Piece type cannot move in the way specified");
 
@@ -263,7 +256,7 @@ public class Gamestate
         else if (destinationP is null) result = new ValidationResult.Valid();
             // If the move has not tripped any illegality checks and it is not a capture, the move is valid
 
-        if (lookForCheck && LookForCheck(source, destination))
+        if (lookForCheck && LookForCheck(source, destination, true))
             return new ValidationResult.Invalid("A move cannot put the current side's King in check");
 
         if (sourceP is Pawn pw)
@@ -296,27 +289,34 @@ public class Gamestate
         
     }
 
-    private bool LookForCheck(Point source, Point destination)
+    private bool LookForCheck(Point source, Point destination, bool afterMove)
     // Returns true if the the current color's King will be in check after the given move
     {
 
-        Gamestate afterMoveGameState = new Gamestate(GenerateCurrentFen());
-        afterMoveGameState.MovePiece(source, destination);
+        Gamestate g = this;
 
-        Point kingPos = afterMoveGameState.KingPos();
+        if (afterMove)
+        {
+            
+            g = new Gamestate(GenerateCurrentFen());
+            g.MovePiece(source, destination);
+            
+        }
+
+        Point kingPos = g.KingPos();
 
         for (int i = 0; i < 64; i++)
         {
             
             Point pos = Utilities.Translate1DCoordTo2D(i);
-            Piece? p = afterMoveGameState.Board.PieceAtPosition(pos);
+            Piece? p = g.Board.PieceAtPosition(pos);
             
             if (p is null) continue;
 
             if (_isWhiteTurn && p.IsWhite || !_isWhiteTurn && !p.IsWhite) continue;
             // Skip friendly Pieces
 
-            if (afterMoveGameState.ValidateMove(pos, kingPos, false) is ValidationResult.Valid) return true;
+            if (g.ValidateMove(pos, kingPos, false) is ValidationResult.Valid) return true;
 
             // TODO: Add board-specific legality checker function
 
@@ -333,13 +333,6 @@ public class Gamestate
         for (int i = 0; i < 64; i++)
         {
 
-            if (i == 7)
-            {
-
-                Console.WriteLine();
-                
-            }
-            
             Point pos = Utilities.Translate1DCoordTo2D(i);
             Piece? p = _board.PieceAtPosition(pos);
 
@@ -376,13 +369,6 @@ public class Gamestate
 
         }
 
-        Console.WriteLine();
-
-        Console.Write("Captured white pieces: ");
-        foreach(Piece p in _capturedWhitePieces) Console.Write(p.PieceTypeChar + " ");
-        Console.WriteLine();
-        Console.Write("Captured black pieces: ");
-        foreach(Piece p in _capturedBlackPieces) Console.Write(p.PieceTypeChar + " ");
         Console.WriteLine('\n');
 
     }

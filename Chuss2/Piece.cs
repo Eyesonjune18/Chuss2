@@ -27,7 +27,7 @@ public abstract class Piece
 
     }
     
-    public virtual bool IsMoveLegal(Point source, Point destination)
+    public virtual bool IsMoveLegal(Point source, Point destination, bool isCapture)
     // Checks if the given move is legal for a given Piece type, irrespective of the current gamestate
     // Assumes that basic pre-checks have been done (source and destination tile are not the same, etc.)
     {
@@ -49,7 +49,7 @@ public class Pawn : Piece
 
     }
     
-    public override bool IsMoveLegal(Point source, Point destination)
+    public override bool IsMoveLegal(Point source, Point destination, bool isCapture)
     // Checks if the given move is legal for Pawns, irrespective of the current gamestate
     {
 
@@ -65,10 +65,10 @@ public class Pawn : Piece
         if (changeY == 0) return false;
         // Makes sure Pawn is not moving horizontally (required to avoid false positive in the final check)
         
-        if (changeX == 1 && changeY == 1) return true;
-        // Pawn capture move - further validation in Gamestate
+        if (isCapture && changeX == 1 && changeY == 1) return true;
+        // Pawn capture move
 
-        return changeX == 0 && changeY <= allowedDistance;
+        return !isCapture && changeX == 0 && changeY <= allowedDistance;
         // Standard move, adjusted based on en passant rule
         // This is the final condition, so return false if not true
 
@@ -86,7 +86,7 @@ public class Rook : Piece
 
     }
 
-    public override bool IsMoveLegal(Point source, Point destination)
+    public override bool IsMoveLegal(Point source, Point destination, bool isCapture)
     // Checks if the given move is legal for Rooks, irrespective of the current gamestate
     {
 
@@ -111,7 +111,7 @@ public class Knight : Piece
 
     }
 
-    public override bool IsMoveLegal(Point source, Point destination)
+    public override bool IsMoveLegal(Point source, Point destination, bool isCapture)
     // Checks if the given move is legal for Knights, irrespective of the current gamestate
     {
 
@@ -136,7 +136,7 @@ public class Bishop : Piece
 
     }
 
-    public override bool IsMoveLegal(Point source, Point destination)
+    public override bool IsMoveLegal(Point source, Point destination, bool isCapture)
     // Checks if the given move is legal for Bishops, irrespective of the current gamestate
     {
 
@@ -161,7 +161,7 @@ public class Queen : Piece
 
     }
 
-    public override bool IsMoveLegal(Point source, Point destination)
+    public override bool IsMoveLegal(Point source, Point destination, bool isCapture)
     // Checks if the given move is legal for Queens, irrespective of the current gamestate
     {
 
@@ -186,7 +186,7 @@ public class King : Piece
 
     }
 
-    public override bool IsMoveLegal(Point source, Point destination)
+    public override bool IsMoveLegal(Point source, Point destination, bool isCapture)
         // Checks if the given move is legal for Kings, irrespective of the current gamestate
     {
 

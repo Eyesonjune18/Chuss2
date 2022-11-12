@@ -83,8 +83,6 @@ public class Tests
             Assert.That(g.FullMoves, Is.EqualTo(0));
             Assert.That(g.IsWhiteTurn);
             Assert.That(g.GenerateCurrentFen(), Is.EqualTo(DefaultFen));
-            Assert.That(!g.CapturedWhitePieces.Any());
-            Assert.That(!g.CapturedBlackPieces.Any());
             // TODO: Add capture arrays when capture thing works
             
         });
@@ -111,8 +109,6 @@ public class Tests
             Assert.That(g.FullMoves, Is.EqualTo(3));
             Assert.That(!g.IsWhiteTurn);
             Assert.That(g.GenerateCurrentFen(), Is.EqualTo(SpecialFen1));
-            Assert.That(!g.CapturedWhitePieces.Any());
-            Assert.That(!g.CapturedBlackPieces.Any());
             
         });
 
@@ -138,8 +134,6 @@ public class Tests
             Assert.That(g.FullMoves, Is.EqualTo(19));
             Assert.That(!g.IsWhiteTurn);
             Assert.That(g.GenerateCurrentFen(), Is.EqualTo(SpecialFen2));
-            Assert.That(!g.CapturedWhitePieces.Any());
-            Assert.That(!g.CapturedBlackPieces.Any());
             
         });
 
@@ -165,10 +159,19 @@ public class Tests
             Assert.That(g.FullMoves, Is.EqualTo(0));
             Assert.That(!g.IsWhiteTurn);
             Assert.That(g.GenerateCurrentFen(), Is.EqualTo(SpecialFen3));
-            Assert.That(!g.CapturedWhitePieces.Any());
-            Assert.That(!g.CapturedBlackPieces.Any());
             
         });
+
+    }
+
+    [Test]
+    public void MoveValidationTestSelfCheck()
+    // Tests if the self-check rule works
+    {
+
+        Gamestate g = new Gamestate(SpecialFen3);
+        
+        Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(7, 6), new Point(7, 7)));
 
     }
 
