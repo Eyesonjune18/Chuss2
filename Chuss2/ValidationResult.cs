@@ -1,9 +1,7 @@
 ﻿namespace Chuss2;
 
-abstract class ValidationResult
+public abstract class ValidationResult
 {
-    
-    // ValidationResult() {}
 
     public sealed class Valid : ValidationResult
     {

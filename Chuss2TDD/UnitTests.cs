@@ -176,4 +176,63 @@ public class Tests
 
     }
 
+    [Test]
+    public void MoveValidationPawnCheck()
+    // Tests if Pawn move behavior works
+    // TODO: Add color-specific tests
+    {
+
+        Gamestate g = new Gamestate();
+
+        Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(0, 1), new Point(0, 6)));
+        // Past move distance test
+        Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(0, 1), new Point(1, 2)));
+        // Capture pattern with no capture test
+        Assert.DoesNotThrow(() => g.ValidateMove(new Point(0, 1), new Point(0, 2)));
+        // Standard 1-tile move test
+        Assert.DoesNotThrow(() => g.ValidateMove(new Point(0, 1), new Point(0, 3)));
+        // Standard en passant move test
+        Assert.DoesNotThrow(() => g.PerformMove(new Point(0, 1), new Point(0, 2)));
+        // Standard move, prep for next test
+        Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(0, 2), new Point(0, 4)));
+        // En passant after first move test
+
+        g = new Gamestate("k7/8/8/8/8/pp6/P7/7K w - - 0 0");
+        
+        Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(0, 1), new Point(0, 2)));
+        // Standard move with capture test
+        Assert.DoesNotThrow(() => g.ValidateMove(new Point(0, 1), new Point(1, 2)));
+        // Capture pattern with capture test
+
+    }
+
+    // [Test]
+    // public void MoveValidationRookCheck()
+    // // Tests if Pawn move behavior works
+    // {
+    //
+    //     Gamestate g = new Gamestate("k7/8/8/8/4R3/8/8/7K w - - 0 0");
+    //
+    //     Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(4, 3), new Point(0, 6)));
+    //     // Past move distance test
+    //     Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(4, 3), new Point(1, 2)));
+    //     // Capture pattern with no capture test
+    //     Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(0, 2)));
+    //     // Standard 1-tile move test
+    //     Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(0, 3)));
+    //     // Standard en passant move test
+    //     Assert.DoesNotThrow(() => g.PerformMove(new Point(4, 3), new Point(0, 2)));
+    //     // Standard move, prep for next test
+    //     Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(4, 3), new Point(0, 4)));
+    //     // En passant after first move test
+    //
+    //     g = new Gamestate("k7/8/8/8/8/pp6/P7/7K w - - 0 0");
+    //     
+    //     Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(4, 3), new Point(0, 2)));
+    //     // Standard move with capture test
+    //     Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(1, 2)));
+    //     // Capture pattern with capture test
+    //
+    // }
+
 }

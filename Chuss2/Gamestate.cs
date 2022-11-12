@@ -156,23 +156,11 @@ public class Gamestate
         if (validity is ValidationResult.Invalid iv)
             throw new ArgumentException("[ERROR] " + iv.Reason, nameof(destination));
 
-        if (validity is ValidationResult.Valid v)
+        if (validity is ValidationResult.Valid)
         {
             
+            AdjustStateModifiers(source, destination);
             MovePiece(source, destination);
-
-            Piece? movedP = _board.PieceAtPosition(source);
-            // If the move is valid, the moved Piece cannot be null, but nullability is included for syntactical purposes
-            Piece? capturedP = v.CapturedPiece;
-
-            if (movedP is not null) movedP.HasMoved = true;
-
-            _fullMoves++;
-            if (movedP is not Pawn && capturedP is null) _halfMoves++;
-            else _halfMoves = 0;
-            
-            _isWhiteTurn = !_isWhiteTurn;
-            // Swap the turn to the other side
 
         }
 
@@ -184,6 +172,25 @@ public class Gamestate
         
         _board.SetPiece(destination, _board.PieceAtPosition(source));
         _board.ClearPiece(source);
+        
+    }
+
+    private void AdjustStateModifiers(Point source, Point destination)
+    // Edits fields as needed after a given move
+    {
+        
+        Piece? movedP = _board.PieceAtPosition(source);
+        // If the move is valid, the moved Piece cannot be null, but nullability is included for syntactical purposes
+        Piece? capturedP = _board.PieceAtPosition(destination);
+
+        if (movedP is not null) movedP.HasMoved = true;
+
+        _fullMoves++;
+        if (movedP is not Pawn && capturedP is null) _halfMoves++;
+        else _halfMoves = 0;
+            
+        _isWhiteTurn = !_isWhiteTurn;
+        // Swap the turn to the other side
         
     }
 
@@ -224,9 +231,9 @@ public class Gamestate
 
     }
 
-    private ValidationResult ValidateMove(Point source, Point destination) => ValidateMove(source, destination, true);
+    public ValidationResult ValidateMove(Point source, Point destination) => ValidateMove(source, destination, true);
     
-    private ValidationResult ValidateMove(Point source, Point destination, bool lookForCheck)
+    public ValidationResult ValidateMove(Point source, Point destination, bool lookForCheck)
     {
 
         ValidationResult result = new ValidationResult.Invalid();
@@ -264,13 +271,6 @@ public class Gamestate
         if (lookForCheck && LookForCheck(source, destination, true))
             return new ValidationResult.Invalid("A move cannot put the current side's King in check");
 
-        if (sourceP is Pawn pw)
-        {
-            
-            // TODO: Add special checker for diagonal Pawn move
-            
-        }
-
         return result;
 
     }
@@ -294,7 +294,10 @@ public class Gamestate
         
     }
 
-    private bool LookForCheck(Point source, Point destination, bool afterMove)
+    private bool LookForCheck(Point source, Point destination, bool afterMove) =>
+        LookForCheck(source, destination, afterMove, _isWhiteTurn);
+
+    private bool LookForCheck(Point source, Point destination, bool afterMove, bool white)
     // Returns true if the the current color's King will be in check after the given move
     {
 
@@ -305,10 +308,11 @@ public class Gamestate
             
             g = new Gamestate(GenerateCurrentFen());
             g.MovePiece(source, destination);
-            
+            g.AdjustStateModifiers(source, destination);
+
         }
 
-        Point kingPos = g.KingPos();
+        Point kingPos = g.KingPos(white);
 
         for (int i = 0; i < 64; i++)
         {
@@ -318,7 +322,7 @@ public class Gamestate
             
             if (p is null) continue;
 
-            if (_isWhiteTurn && p.IsWhite || !_isWhiteTurn && !p.IsWhite) continue;
+            if (white && p.IsWhite || !white && !p.IsWhite) continue;
             // Skip friendly Pieces
 
             if (g.ValidateMove(pos, kingPos, false) is ValidationResult.Valid) return true;
@@ -331,8 +335,8 @@ public class Gamestate
 
     }
 
-    private Point KingPos()
-    // Retrieves the position of the current side's King
+    private Point KingPos(bool white)
+    // Retrieves the position of the given side's King
     {
 
         for (int i = 0; i < 64; i++)
@@ -341,7 +345,7 @@ public class Gamestate
             Point pos = Utilities.Translate1DCoordTo2D(i);
             Piece? p = _board.PieceAtPosition(pos);
 
-            if (p is not null && p is King && p.IsWhite == _isWhiteTurn) return pos;
+            if (p is not null && p is King && p.IsWhite == white) return pos;
 
         }
 
