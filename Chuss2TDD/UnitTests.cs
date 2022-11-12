@@ -2,6 +2,7 @@ namespace Chuss2TDD;
 
 public class Tests
 {
+    
     private const string DefaultFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
     private const string SpecialFen1 = "r4bkr/ppp3pp/2n1B3/4p3/8/8/PPPP1PPP/RNB1K2R b KQ - 0 3";
     private const string SpecialFen2 = "1rr5/1pp1k1pp/p1nb4/3Q1p2/1P1BP1P1/5P1b/P1P1K2P/4R2R b - - 3 19";

@@ -105,10 +105,10 @@ public class Gamestate
             
             foreach (char c in fenCastle)
             {
-
+        
                 switch (c)
                 {
-
+        
                     case 'K':
                         _whiteCanCastleKingside = true;
                         break;
@@ -123,11 +123,11 @@ public class Gamestate
                         break;
                     default:
                         throw new ArgumentException(unexpectedChar + "castle section");
-
+        
                 }
-
+        
             }
-
+        
         }
 
         if (!fenEnPassant.Equals("-"))
@@ -168,7 +168,8 @@ public class Gamestate
             if (movedP is not null) movedP.HasMoved = true;
 
             _fullMoves++;
-            _halfMoves += movedP is not Pawn && capturedP is null ? 1 : 0;
+            if (movedP is not Pawn && capturedP is null) _halfMoves++;
+            else _halfMoves = 0;
             
             _isWhiteTurn = !_isWhiteTurn;
             // Swap the turn to the other side
