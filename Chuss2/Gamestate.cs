@@ -100,38 +100,42 @@ public class Gamestate
             
         };
 
-        foreach (char c in fenCastle)
+        if (!fenCastle.Equals("-"))
         {
-
-            switch (c)
+            
+            foreach (char c in fenCastle)
             {
 
-                case '-':
-                    break;
-                case 'K':
-                    _whiteCanCastleKingside = true;
-                    break;
-                case 'Q':
-                    _whiteCanCastleQueenside = true;
-                    break;
-                case 'k':
-                    _blackCanCastleKingside = true;
-                    break;
-                case 'q':
-                    _blackCanCastleQueenside = true;
-                    break;
-                default:
-                    throw new ArgumentException(unexpectedChar + "castle section");
+                switch (c)
+                {
+
+                    case 'K':
+                        _whiteCanCastleKingside = true;
+                        break;
+                    case 'Q':
+                        _whiteCanCastleQueenside = true;
+                        break;
+                    case 'k':
+                        _blackCanCastleKingside = true;
+                        break;
+                    case 'q':
+                        _blackCanCastleQueenside = true;
+                        break;
+                    default:
+                        throw new ArgumentException(unexpectedChar + "castle section");
+
+                }
 
             }
 
         }
 
-        if (fenEnPassant != "-")
+        if (!fenEnPassant.Equals("-"))
         {
-            if (fenEnPassant.Length != 2 || (fenEnPassant[0] is <= 'a' or >= 'h') ||
-                (fenEnPassant[1] is <= '1' or >= '8')) throw new ArgumentException(unexpectedChar + "en passant section", nameof(fen));
-            _enPassantTile = new Point(fenEnPassant[0] - 'a', fenEnPassant[1] - '1');
+            
+            if (fenEnPassant.Length != 2 || (fenEnPassant[0] is < 'a' or > 'h') ||
+                (fenEnPassant[1] is not '3' or '6')) throw new ArgumentException(unexpectedChar + "en passant section", nameof(fen));
+            _enPassantTile = Utilities.FromAlgebraicNotation(fenEnPassant);
             
         }
 

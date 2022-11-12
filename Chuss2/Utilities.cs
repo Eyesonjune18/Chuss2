@@ -44,7 +44,7 @@ public static class Utilities
 
     }
 
-    private static Point FromAlgebraicNotation(string a)
+    public static Point FromAlgebraicNotation(string a)
     // Translates a given algebraic notation string to a Point
     {
         
