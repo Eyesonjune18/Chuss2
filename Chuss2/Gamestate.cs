@@ -39,10 +39,6 @@ public class Gamestate
 
         SetGamestateWithFen(fen);
 
-        _whiteInCheck = false;
-        _blackInCheck = false;
-        // TODO: Add in SetGamestateWithFen()
-
     }
     
     #endregion
@@ -150,35 +146,35 @@ public class Gamestate
 
     }
 
-    public void PerformMove(Point source, Point destination)
+    public void PerformMove(Move move)
     // Performs a move with input supplied from the user
     {
 
-        ValidationResult validity = ValidateMove(source, destination);
+        ValidationResult validity = ValidateMove(move);
 
         if (validity is ValidationResult.Invalid iv)
-            throw new ArgumentException("[ERROR] " + iv.Reason, nameof(destination));
+            throw new ArgumentException("[ERROR] " + iv.Reason, nameof(move.Destination));
 
         if (validity is ValidationResult.Valid)
         {
             
-            AdjustStateModifiers(source, destination);
-            MovePiece(source, destination);
+            AdjustStateModifiers(move);
+            MovePiece(move);
 
         }
 
     }
 
-    private void MovePiece(Point source, Point destination)
+    private void MovePiece(Move move)
     // Moves a Piece irrespective of any legality checks
     {
         
-        _board.SetPiece(destination, _board.PieceAtPosition(source));
-        _board.ClearPiece(source);
+        _board.SetPiece(move.Destination, _board.PieceAtPosition(move.Source));
+        _board.ClearPiece(move.Source);
         
     }
 
-    private void AdjustStateModifiers(Point source, Point destination)
+    private void AdjustStateModifiers(Move move)
     // Edits fields as needed after a given move
     {
         
@@ -186,9 +182,9 @@ public class Gamestate
         if (LookForCheckWithoutMove(false)) _blackInCheck = true;
         // TODO: Potentially add some optimization by returning checks from ValidationResults
         
-        Piece? movedP = _board.PieceAtPosition(source);
+        Piece? movedP = _board.PieceAtPosition(move.Source);
         // If the move is valid, the moved Piece cannot be null, but nullability is included for syntactical purposes
-        Piece? capturedP = _board.PieceAtPosition(destination);
+        Piece? capturedP = _board.PieceAtPosition(move.Destination);
 
         if (movedP is not null) movedP.HasMoved = true;
 
@@ -238,20 +234,20 @@ public class Gamestate
 
     }
 
-    public ValidationResult ValidateMove(Point source, Point destination) => ValidateMove(source, destination, true);
+    public ValidationResult ValidateMove(Move move) => ValidateMove(move, true);
 
-    public ValidationResult ValidateMove(Point source, Point destination, bool lookForCheck)
+    public ValidationResult ValidateMove(Move move, bool lookForCheck)
     {
 
         ValidationResult result = new ValidationResult.Invalid();
 
-        if (source.HasSameCoords(destination))
+        if (move.Source.HasSameCoords(move.Destination))
             // Checks if the Piece is actually being moved
             return new ValidationResult.Invalid("A Piece cannot be moved to its own position");
 
-        Piece? sourceP = _board.PieceAtPosition(source);
+        Piece? sourceP = _board.PieceAtPosition(move.Source);
         // The Piece to be moved
-        Piece? destinationP = _board.PieceAtPosition(destination);
+        Piece? destinationP = _board.PieceAtPosition(move.Destination);
         // The Piece to be captured (if a capture will occur)
 
         if (sourceP is null) return new ValidationResult.Invalid("An empty tile cannot be moved");
@@ -261,11 +257,11 @@ public class Gamestate
                 return new ValidationResult.Invalid("The moved Piece must be friendly");
             // Prevents moving enemy Pieces
 
-        if (!sourceP.IsMoveLegal(source, destination, destinationP is not null))
+        if (!sourceP.IsMoveLegal(move, destinationP is not null))
             // Checks whether move pattern is legal for this Piece type
             return new ValidationResult.Invalid("The given Piece type cannot move in the way specified");
 
-        if (sourceP is not Knight && CheckForCollision(source, destination)) 
+        if (sourceP is not Knight && CheckForCollision(move)) 
             // Knights are excluded from collision checker because they can hop over Pieces
             return new ValidationResult.Invalid("Pieces cannot collide with other Pieces when moving");
 
@@ -279,20 +275,20 @@ public class Gamestate
         else if (destinationP is null) result = new ValidationResult.Valid();
             // If the move has not tripped any illegality checks and it is not a capture, the move is valid
 
-        if (lookForCheck && LookForCheckWithMove(source, destination))
+        if (lookForCheck && LookForCheckWithMove(move))
             return new ValidationResult.Invalid("A move cannot put the current side's King in check");
 
         return result;
 
     }
 
-    private bool CheckForCollision(Point source, Point destination) => CheckForCollision(source, destination, false);
+    private bool CheckForCollision(Move move) => CheckForCollision(move, false);
     
-    private bool CheckForCollision(Point source, Point destination, bool includeCaptureTile)
+    private bool CheckForCollision(Move move, bool includeCaptureTile)
     // Checks whether the given move will result in a collision between two pieces
     {
 
-        List<Point> tilesToCheck = Utilities.GetPointsBetween(source, destination);
+        List<Point> tilesToCheck = Utilities.GetPointsBetween(move.Source, move.Destination);
         // Get all Points between the source and the destination
         tilesToCheck.RemoveAt(0);
         // Ignore the Piece itself for all moves
@@ -305,16 +301,16 @@ public class Gamestate
         
     }
 
-    private bool LookForCheckWithMove(Point source, Point destination) =>
-        LookForCheckWithMove(source, destination, _isWhiteTurn);
+    private bool LookForCheckWithMove(Move move) =>
+        LookForCheckWithMove(move, _isWhiteTurn);
 
-    private bool LookForCheckWithMove(Point source, Point destination, bool whiteTurn)
+    private bool LookForCheckWithMove(Move move, bool whiteTurn)
     // Returns true if the current color's King will be in check after a given move
     {
 
         Gamestate g = new Gamestate(GenerateCurrentFen());
-        g.MovePiece(source, destination);
-        g.AdjustStateModifiers(source, destination);
+        g.MovePiece(move);
+        g.AdjustStateModifiers(move);
 
         return LookForCheck(g, whiteTurn);
 
@@ -342,7 +338,7 @@ public class Gamestate
             if (whiteTurn && p.IsWhite || !whiteTurn && !p.IsWhite) continue;
             // Skip friendly Pieces
 
-            if (game.ValidateMove(pos, kingPos, false) is ValidationResult.Valid) return true;
+            if (game.ValidateMove(new Move(pos, kingPos), false) is ValidationResult.Valid) return true;
 
         }
 
@@ -350,6 +346,16 @@ public class Gamestate
 
     }
 
+    public bool LookForCheckmate() => LookForCheckmate(_isWhiteTurn);
+
+    public bool LookForCheckmate(bool white)
+    // Returns true if the given color is in checkmate
+    {
+
+        return false;
+
+    }
+    
     private Point KingPos(bool whiteTurn)
     // Retrieves the position of the given side's King
     {

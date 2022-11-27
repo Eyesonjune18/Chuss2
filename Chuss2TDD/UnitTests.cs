@@ -166,146 +166,161 @@ public class Tests
     }
 
     [Test]
-    public void MoveValidationTestSelfCheck()
+    public void MoveValidationSelfCheckTest()
     // Tests if the self-check rule works
     {
 
         Gamestate g = new Gamestate(SpecialFen3);
         
-        Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(7, 6), new Point(7, 7)));
+        Assert.Throws<ArgumentException>(() => g.PerformMove(new Move(new Point(7, 6), new Point(7, 7))));
 
     }
 
     [Test]
-    public void MoveValidationPawnCheck()
+    public void MoveValidationPawnTest()
     // Tests if Pawn move behavior works
     // TODO: Add color-specific tests
     {
 
         Gamestate g = new Gamestate();
 
-        Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(0, 1), new Point(0, 6)));
+        Assert.Throws<ArgumentException>(() => g.PerformMove(new Move(new Point(0, 1), new Point(0, 6))));
         // Past move distance test
-        Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(0, 1), new Point(1, 2)));
+        Assert.Throws<ArgumentException>(() => g.PerformMove(new Move(new Point(0, 1), new Point(1, 2))));
         // Capture pattern with no capture test
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(0, 1), new Point(0, 2)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(0, 1), new Point(0, 2))));
         // Standard 1-tile move test
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(0, 1), new Point(0, 3)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(0, 1), new Point(0, 3))));
         // Standard en passant move test
-        Assert.DoesNotThrow(() => g.PerformMove(new Point(0, 1), new Point(0, 2)));
+        Assert.DoesNotThrow(() => g.PerformMove(new Move(new Point(0, 1), new Point(0, 2))));
         // Standard move, prep for next test
-        Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(0, 2), new Point(0, 4)));
+        Assert.Throws<ArgumentException>(() => g.PerformMove(new Move(new Point(0, 2), new Point(0, 4))));
         // En passant after first move test
 
         g = new Gamestate("k7/8/8/8/8/pp6/P7/7K w - - 0 0");
         
-        Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(0, 1), new Point(0, 2)));
+        Assert.Throws<ArgumentException>(() => g.PerformMove(new Move(new Point(0, 1), new Point(0, 2))));
         // Standard move with capture test
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(0, 1), new Point(1, 2)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(0, 1), new Point(1, 2))));
         // Capture pattern with capture test
 
     }
 
     [Test]
-    public void MoveValidationRookCheck()
+    public void MoveValidationRookTest()
     // Tests if Rook move behavior works
     {
     
         Gamestate g = new Gamestate("k7/8/8/8/4R3/8/8/7K w - - 0 0");
         
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(5, 3)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(5, 3))));
         // Standard 1-tile move test x+
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(3, 3)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(3, 3))));
         // Standard 1-tile move test x-
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(4, 4)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(4, 4))));
         // Standard 1-tile move test y+
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(4, 2)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(4, 2))));
         // Standard 1-tile move test y-
         
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(7, 3)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(7, 3))));
         // Standard multi-tile move test x+
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(0, 3)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(0, 3))));
         // Standard multi-tile move test x-
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(4, 7)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(4, 7))));
         // Standard multi-tile move test y+
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(4, 0)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(4, 0))));
         // Standard multi-tile move test y-
 
         g = new Gamestate("k7/8/8/4p3/4R3/8/8/7K w - - 0 0");
 
-        Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(4, 3), new Point(4, 7)));
+        Assert.Throws<ArgumentException>(() => g.PerformMove(new Move(new Point(4, 3), new Point(4, 7))));
         // Collision checker test
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(4, 4)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(4, 4))));
         // Standard capture test
     
     }
     
     [Test]
-    public void MoveValidationKnightCheck()
+    public void MoveValidationKnightTest()
     // Tests if Knight move behavior works
     {
 
         Gamestate g = new Gamestate("k7/8/8/8/4N3/8/8/7K w - - 0 0");
         
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(6, 4)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(6, 4))));
         // Standard 1-tile move test x+y+
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(6, 2)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(6, 2))));
         // Standard 1-tile move test x+y-
         
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(2, 4)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(2, 4))));
         // Standard 1-tile move test x-y+
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(2, 2)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(2, 2))));
         // Standard 1-tile move test x-y-
         
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(5, 5)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(5, 5))));
         // Standard multi-tile move test y+x+
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(3, 5)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(3, 5))));
         // Standard multi-tile move test y+x-
         
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(5, 2)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(5, 2))));
         // Standard multi-tile move test y-x+
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(3, 2)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(3, 2))));
         // Standard multi-tile move test y-x-
 
         g = new Gamestate("k7/8/8/2p5/4N3/8/8/7K w - - 0 0");
 
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(2, 4)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(2, 4))));
         // Standard capture test
         
     }
     
     [Test]
-    public void MoveValidationBishopCheck()
-        // Tests if Bishop move behavior works
+    public void MoveValidationBishopTest() 
+    // Tests if Bishop move behavior works
     {
     
         Gamestate g = new Gamestate("4k3/8/8/8/4B3/8/8/4K3 w - - 0 0");
         
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(5, 4)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(5, 4))));
         // Standard 1-tile move test x+y+
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(3, 4)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(3, 4))));
         // Standard 1-tile move test x-y+
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(5, 2)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(5, 2))));
         // Standard 1-tile move test x+y-
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(3, 2)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(3, 2))));
         // Standard 1-tile move test x-y-
         
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(7, 6)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(7, 6))));
         // Standard multi-tile move test x+y+
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(0, 6)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(0, 6))));
         // Standard multi-tile move test x-y+
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(7, 0)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(7, 0))));
         // Standard multi-tile move test x+y-
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(1, 0)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(1, 0))));
         // Standard multi-tile move test x-y-
 
         g = new Gamestate("k7/8/8/3p4/4B3/8/8/7K w - - 0 0");
 
-        Assert.Throws<ArgumentException>(() => g.PerformMove(new Point(4, 3), new Point(0, 6)));
+        Assert.Throws<ArgumentException>(() => g.PerformMove(new Move(new Point(4, 3), new Point(0, 6))));
         // Collision checker test
-        Assert.DoesNotThrow(() => g.ValidateMove(new Point(4, 3), new Point(3, 5)));
+        Assert.DoesNotThrow(() => g.ValidateMove(new Move(new Point(4, 3), new Point(3, 5))));
         // Standard capture test
     
+    }
+
+    [Test]
+    public void CheckMateTest()
+    // Tests if the LookForCheckmate() function works
+    {
+
+        Gamestate g = new Gamestate("3k4/8/8/8/8/8/1r6/r2K4 w - - 0 1");
+        
+        Assert.That(g.LookForCheckmate());
+
+        g = new Gamestate("3k4/8/8/8/2Q5/8/1r6/r2K4 w - - 0 1");
+        
+        Assert.That(!g.LookForCheckmate());
+
     }
 
 }

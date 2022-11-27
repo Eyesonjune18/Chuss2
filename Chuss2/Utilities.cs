@@ -5,25 +5,18 @@ namespace Chuss2;
 public static class Utilities
 {
  
-    public static List<Point> ParseMove(string m)
+    public static Move ParseMove(string m)
     {
 
         string[] algebraicCoords = m.Split(' ');
         if (algebraicCoords.Length != 2)
             throw new ArgumentException("[ERROR] A move must have a source and a destination, and no other arguments",
                 nameof(m));
-        
-        List<Point> srcAndDest = new List<Point>
-        {
-            
-            FromAlgebraicNotation(algebraicCoords[0]),
-            // Add the source Point
-            FromAlgebraicNotation(algebraicCoords[1])
-            // Add the destination Point
-            
-        };
 
-        return srcAndDest;
+        Point source = FromAlgebraicNotation(algebraicCoords[0]);
+        Point destination = FromAlgebraicNotation(algebraicCoords[1]);
+        
+        return new Move(source, destination);
 
     }
     

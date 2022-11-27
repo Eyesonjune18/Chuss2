@@ -2,7 +2,6 @@
 
 public abstract class Piece
 // The parent class for all types of Pieces (Pawn, Rook, Knight, Bishop, Queen, King)
-// TODO: Discriminated Union?
 {
     
     public char PieceTypeChar { get; protected init; }
@@ -27,7 +26,7 @@ public abstract class Piece
 
     }
     
-    public virtual bool IsMoveLegal(Point source, Point destination, bool isCapture)
+    public virtual bool IsMoveLegal(Move move, bool isCapture)
     // Checks if the given move is legal for a given Piece type, irrespective of the current gamestate
     // Assumes that basic pre-checks have been done (source and destination tile are not the same, etc.)
     {
@@ -49,12 +48,12 @@ public class Pawn : Piece
 
     }
     
-    public override bool IsMoveLegal(Point source, Point destination, bool isCapture)
+    public override bool IsMoveLegal(Move move, bool isCapture)
     // Checks if the given move is legal for Pawns, irrespective of the current gamestate
     {
 
-        int changeX = Math.Abs(destination.X - source.X);
-        int changeY = destination.Y - source.Y;
+        int changeX = Math.Abs(move.Destination.X - move.Source.X);
+        int changeY = move.Destination.Y - move.Source.Y;
 
         if (!IsWhite) changeY *= -1;
         // Because Pawns move a different direction based on their color, flip the change in Y to reflect the Pawn color
@@ -86,12 +85,12 @@ public class Rook : Piece
 
     }
 
-    public override bool IsMoveLegal(Point source, Point destination, bool isCapture)
+    public override bool IsMoveLegal(Move move, bool isCapture)
     // Checks if the given move is legal for Rooks, irrespective of the current gamestate
     {
 
-        int changeX = destination.X - source.X;
-        int changeY = destination.Y - source.Y;
+        int changeX = move.Destination.X - move.Source.X;
+        int changeY = move.Destination.Y - move.Source.Y;
         // Absolute value could be taken here but is unnecessary
 
         return (changeX == 0 && changeY != 0) ^ (changeX != 0 && changeY == 0);
@@ -111,12 +110,12 @@ public class Knight : Piece
 
     }
 
-    public override bool IsMoveLegal(Point source, Point destination, bool isCapture)
+    public override bool IsMoveLegal(Move move, bool isCapture)
     // Checks if the given move is legal for Knights, irrespective of the current gamestate
     {
 
-        int changeX = Math.Abs(destination.X - source.X);
-        int changeY = Math.Abs(destination.Y - source.Y);
+        int changeX = Math.Abs(move.Destination.X - move.Source.X);
+        int changeY = Math.Abs(move.Destination.Y - move.Source.Y);
         // Absolute value is taken because Knights can move in any direction
 
         return (changeX == 1 && changeY == 2) ^ (changeX == 2 && changeY == 1);
@@ -136,12 +135,12 @@ public class Bishop : Piece
 
     }
 
-    public override bool IsMoveLegal(Point source, Point destination, bool isCapture)
+    public override bool IsMoveLegal(Move move, bool isCapture)
     // Checks if the given move is legal for Bishops, irrespective of the current gamestate
     {
 
-        int changeX = Math.Abs(destination.X - source.X);
-        int changeY = Math.Abs(destination.Y - source.Y);
+        int changeX = Math.Abs(move.Destination.X - move.Source.X);
+        int changeY = Math.Abs(move.Destination.Y - move.Source.Y);
         // Absolute value is taken because Bishops can move in any direction
 
         return changeX == changeY;
@@ -161,12 +160,12 @@ public class Queen : Piece
 
     }
 
-    public override bool IsMoveLegal(Point source, Point destination, bool isCapture)
+    public override bool IsMoveLegal(Move move, bool isCapture)
     // Checks if the given move is legal for Queens, irrespective of the current gamestate
     {
 
-        int changeX = Math.Abs(destination.X - source.X);
-        int changeY = Math.Abs(destination.Y - source.Y);
+        int changeX = Math.Abs(move.Destination.X - move.Source.X);
+        int changeY = Math.Abs(move.Destination.Y - move.Source.Y);
         // Absolute value is taken because Queens can move in any direction
 
         return (changeX == 0 && changeY != 0) ^ (changeX != 0 && changeY == 0) ^ (changeX == changeY);
@@ -186,12 +185,12 @@ public class King : Piece
 
     }
 
-    public override bool IsMoveLegal(Point source, Point destination, bool isCapture)
+    public override bool IsMoveLegal(Move move, bool isCapture)
         // Checks if the given move is legal for Kings, irrespective of the current gamestate
     {
 
-        int changeX = Math.Abs(destination.X - source.X);
-        int changeY = Math.Abs(destination.Y - source.Y);
+        int changeX = Math.Abs(move.Destination.X - move.Source.X);
+        int changeY = Math.Abs(move.Destination.Y - move.Source.Y);
         // Absolute value is taken because Kings can move in any direction
 
         return changeX <= 1 && changeY <= 1;
