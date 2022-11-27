@@ -257,6 +257,10 @@ public class Gamestate
         if (sourceP is null) return new ValidationResult.Invalid("An empty tile cannot be moved");
             // Checks for empty tiles
 
+            if (sourceP.IsWhite != _isWhiteTurn)
+                return new ValidationResult.Invalid("The moved Piece must be friendly");
+            // Prevents moving enemy Pieces
+
         if (!sourceP.IsMoveLegal(source, destination, destinationP is not null))
             // Checks whether move pattern is legal for this Piece type
             return new ValidationResult.Invalid("The given Piece type cannot move in the way specified");
