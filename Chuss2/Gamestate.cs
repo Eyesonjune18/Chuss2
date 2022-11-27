@@ -143,12 +143,15 @@ public class Gamestate
         catch (FormatException) { throw new ArgumentException(unexpectedChar + "halfmove section", nameof(fen)); }
         try { _fullMoves = int.Parse(fenFullmove); }
         catch (FormatException) { throw new ArgumentException(unexpectedChar + "fullmove section", nameof(fen)); }
+        
+        if (LookForCheckWithoutMove(true)) _whiteInCheck = true;
+        if (LookForCheckWithoutMove(false)) _blackInCheck = true;
+        // TODO: Remove if refactored
 
     }
 
     public void PerformMove(Point source, Point destination)
     // Performs a move with input supplied from the user
-    // TODO: Add [ERROR] to invalid moves
     {
 
         ValidationResult validity = ValidateMove(source, destination);
@@ -178,6 +181,10 @@ public class Gamestate
     private void AdjustStateModifiers(Point source, Point destination)
     // Edits fields as needed after a given move
     {
+        
+        if (LookForCheckWithoutMove(true)) _whiteInCheck = true;
+        if (LookForCheckWithoutMove(false)) _blackInCheck = true;
+        // TODO: Potentially add some optimization by returning checks from ValidationResults
         
         Piece? movedP = _board.PieceAtPosition(source);
         // If the move is valid, the moved Piece cannot be null, but nullability is included for syntactical purposes
@@ -332,8 +339,6 @@ public class Gamestate
             // Skip friendly Pieces
 
             if (game.ValidateMove(pos, kingPos, false) is ValidationResult.Valid) return true;
-
-            // TODO: Add board-specific legality checker function
 
         }
 
