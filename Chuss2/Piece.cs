@@ -53,7 +53,7 @@ public class Pawn : Piece
     // Checks if the given move is legal for Pawns, irrespective of the current gamestate
     {
 
-        int changeX = destination.X - source.X;
+        int changeX = Math.Abs(destination.X - source.X);
         int changeY = destination.Y - source.Y;
 
         if (!IsWhite) changeY *= -1;

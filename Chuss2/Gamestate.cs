@@ -232,7 +232,7 @@ public class Gamestate
     }
 
     public ValidationResult ValidateMove(Point source, Point destination) => ValidateMove(source, destination, true);
-    
+
     public ValidationResult ValidateMove(Point source, Point destination, bool lookForCheck)
     {
 
@@ -268,7 +268,7 @@ public class Gamestate
         else if (destinationP is null) result = new ValidationResult.Valid();
             // If the move has not tripped any illegality checks and it is not a capture, the move is valid
 
-        if (lookForCheck && LookForCheck(source, destination, true))
+        if (lookForCheck && LookForCheckWithMove(source, destination))
             return new ValidationResult.Invalid("A move cannot put the current side's King in check");
 
         return result;
@@ -294,38 +294,44 @@ public class Gamestate
         
     }
 
-    private bool LookForCheck(Point source, Point destination, bool afterMove) =>
-        LookForCheck(source, destination, afterMove, _isWhiteTurn);
+    private bool LookForCheckWithMove(Point source, Point destination) =>
+        LookForCheckWithMove(source, destination, _isWhiteTurn);
 
-    private bool LookForCheck(Point source, Point destination, bool afterMove, bool white)
-    // Returns true if the the current color's King will be in check after the given move
+    private bool LookForCheckWithMove(Point source, Point destination, bool whiteTurn)
+    // Returns true if the current color's King will be in check after a given move
     {
 
-        Gamestate g = this;
+        Gamestate g = new Gamestate(GenerateCurrentFen());
+        g.MovePiece(source, destination);
+        g.AdjustStateModifiers(source, destination);
 
-        if (afterMove)
-        {
-            
-            g = new Gamestate(GenerateCurrentFen());
-            g.MovePiece(source, destination);
-            g.AdjustStateModifiers(source, destination);
+        return LookForCheck(g, whiteTurn);
 
-        }
+    }
 
-        Point kingPos = g.KingPos(white);
+    private bool LookForCheckWithoutMove() => LookForCheckWithoutMove(_isWhiteTurn);
+
+    private bool LookForCheckWithoutMove(bool whiteTurn) => LookForCheck(this, whiteTurn);
+    // Returns true if the given color's king is currently in check
+
+    private bool LookForCheck(Gamestate game, bool whiteTurn)
+    // Returns true if the the given color's King is in check, disregarding turn order
+    {
+
+        Point kingPos = game.KingPos(whiteTurn);
 
         for (int i = 0; i < 64; i++)
         {
             
             Point pos = Utilities.Translate1DCoordTo2D(i);
-            Piece? p = g.Board.PieceAtPosition(pos);
+            Piece? p = game.Board.PieceAtPosition(pos);
             
             if (p is null) continue;
 
-            if (white && p.IsWhite || !white && !p.IsWhite) continue;
+            if (whiteTurn && p.IsWhite || !whiteTurn && !p.IsWhite) continue;
             // Skip friendly Pieces
 
-            if (g.ValidateMove(pos, kingPos, false) is ValidationResult.Valid) return true;
+            if (game.ValidateMove(pos, kingPos, false) is ValidationResult.Valid) return true;
 
             // TODO: Add board-specific legality checker function
 
@@ -335,7 +341,7 @@ public class Gamestate
 
     }
 
-    private Point KingPos(bool white)
+    private Point KingPos(bool whiteTurn)
     // Retrieves the position of the given side's King
     {
 
@@ -345,7 +351,7 @@ public class Gamestate
             Point pos = Utilities.Translate1DCoordTo2D(i);
             Piece? p = _board.PieceAtPosition(pos);
 
-            if (p is not null && p is King && p.IsWhite == white) return pos;
+            if (p is King && p.IsWhite == whiteTurn) return pos;
 
         }
 

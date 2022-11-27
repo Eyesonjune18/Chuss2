@@ -13,11 +13,15 @@ public static class Utilities
             throw new ArgumentException("[ERROR] A move must have a source and a destination, and no other arguments",
                 nameof(m));
         
-        List<Point> srcAndDest = new List<Point>();
-        srcAndDest.Add(FromAlgebraicNotation(algebraicCoords[0]));
-        // Add the source Point
-        srcAndDest.Add(FromAlgebraicNotation(algebraicCoords[1]));
-        // Add the destination Point
+        List<Point> srcAndDest = new List<Point>
+        {
+            
+            FromAlgebraicNotation(algebraicCoords[0]),
+            // Add the source Point
+            FromAlgebraicNotation(algebraicCoords[1])
+            // Add the destination Point
+            
+        };
 
         return srcAndDest;
 
