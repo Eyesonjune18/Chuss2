@@ -175,7 +175,7 @@ public class Gamestate
     }
 
     private void AdjustStateModifiers(Move move)
-    // Edits fields as needed after a given move
+    // Edits fields as needed after a given Move
     {
         
         if (LookForCheckWithoutMove(true)) _whiteInCheck = true;
@@ -183,7 +183,7 @@ public class Gamestate
         // TODO: Potentially add some optimization by returning checks from ValidationResults
         
         Piece? movedP = _board.PieceAtPosition(move.Source);
-        // If the move is valid, the moved Piece cannot be null, but nullability is included for syntactical purposes
+        // If the Move is valid, the moved Piece cannot be null, but nullability is included for syntactical purposes
         Piece? capturedP = _board.PieceAtPosition(move.Destination);
 
         if (movedP is not null) movedP.HasMoved = true;
@@ -348,11 +348,20 @@ public class Gamestate
 
     public bool LookForCheckmate() => LookForCheckmate(_isWhiteTurn);
 
-    public bool LookForCheckmate(bool white)
+    private bool LookForCheckmate(bool white)
     // Returns true if the given color is in checkmate
     {
 
-        return false;
+        List<Move> possibleMoves = Utilities.GetPossibleFriendlyMoves(this);
+
+        foreach (Move m in possibleMoves)
+        {
+
+            if (!LookForCheckWithMove(m)) return false;
+
+        }
+
+        return true;
 
     }
     

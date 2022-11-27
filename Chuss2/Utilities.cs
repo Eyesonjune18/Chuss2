@@ -6,6 +6,7 @@ public static class Utilities
 {
  
     public static Move ParseMove(string m)
+    // Takes in a move in algebraic notation <source> <destination> and parses it into a Move object
     {
 
         string[] algebraicCoords = m.Split(' ');
@@ -17,6 +18,36 @@ public static class Utilities
         Point destination = FromAlgebraicNotation(algebraicCoords[1]);
         
         return new Move(source, destination);
+
+    }
+
+    public static List<Move> GetPossibleFriendlyMoves(Gamestate g)
+    // Gets all possible Moves for the current friendly side
+    {
+
+        List<Move> moves = new List<Move>();
+
+        for (int i = 0; i < 64; i++)
+        {
+
+            Point source = Translate1DCoordTo2D(i);
+            Piece? movedPiece = g.Board.PieceAtPosition(source);
+
+            if (movedPiece is null || movedPiece.IsWhite != g.IsWhiteTurn) continue;
+            
+            for (int j = 0; j < 64; j++)
+            {
+
+                Point dest = Translate1DCoordTo2D(j);
+                Move m = new Move(source, dest);
+
+                if (g.ValidateMove(m) is ValidationResult.Valid) moves.Add(m);
+
+            }
+
+        }
+
+        return moves;
 
     }
     
